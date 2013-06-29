@@ -1,0 +1,7 @@
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+body { padding-top:36px; }
+#now-playing { display:none; background:#ddd; }
+.container#content { margin-top:3rem; }
+.pagination { margin:0;};
