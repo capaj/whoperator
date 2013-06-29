@@ -3,5 +3,12 @@
    ========================================================================== */
 body { padding-top:36px; }
 #now-playing { display:none; background:#ddd; }
-.container#content { margin-top:3rem; }
-.pagination { margin:0;}
+.container.body { margin-top:3rem; }
+.pagination { margin:0; }
+ul.nav li.dropdown:hover > ul.dropdown-menu { display: block; }
+ul.nav li.dropdown ul.dropdown-menu { margin-top:-4px;}
+
+.current-song .progress{
+	height: 2px;
+	margin-bottom: 0px;
+}
