@@ -1,4 +1,4 @@
-from __init__ import app
+from whoperator import app
 
 
 if __name__ == "__main__":
