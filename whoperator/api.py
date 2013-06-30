@@ -28,10 +28,13 @@ def stream_log():
                 pos = log_file.tell()
 
                 if line:
-                    output = str(json.dumps({'type': 'log',
-                                             'text': line_elements[-1].strip(),
-                                             'id': event_id,
-                                             'date': time.mktime(time.strptime(line_elements[0], "%Y-%m-%d %H:%M:%S"))}))
+                    try:
+                        output = str(json.dumps({'type': 'log',
+                                                 'text': line_elements[-1].strip(),
+                                                 'id': event_id,
+                                                 'date': time.mktime(time.strptime(line_elements[0], "%Y-%m-%d %H:%M:%S"))}))
+                    except ValueError:
+                        pass
                     event_id += 1
                 else:
                     if time.time() - last_heartbeat >= 10:

@@ -40,4 +40,4 @@ nosetests.xml
 *.DS_Store
 
 # Whoperator specific
-*.cfg
+whoperator.cfg
