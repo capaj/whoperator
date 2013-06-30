@@ -1,5 +1,27 @@
-from whoperator import app
+import time
+import os
 
+from whoperator import app, log_file_path
+from flask import request, Response, redirect, url_for
+
+
+### LOGGING STREAM
+@app.route('/log')
+def stream_log():
+    def log_events():
+        pos = 0
+        while True:
+            with open(log_file_path) as log_file:
+                if pos > os.path.getsize(log_file_path):
+                    pos = 0
+                log_file.seek(pos)
+                line = log_file.readline()
+                pos = log_file.tell()
+                if not line:
+                    time.sleep(0.1)
+                    continue
+                yield line
+    return Response(log_events(), content_type='text/event-stream')
 
 ### COLLECTION CRUD
 
