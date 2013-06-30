@@ -1,3 +1,4 @@
+from HTMLParser import HTMLParser
 import re
 
 class InvalidTorrentException(Exception):
@@ -160,6 +161,8 @@ class Torrent(object):
         # TODO: Add conditionals to handle torrents that aren't music
         self.group = self.parent_api.get_torrent_group(top_10_json_response['groupId'])
         self.group.name = top_10_json_response['groupName']
+        if not self.group.music_info and top_10_json_response['artist']:
+            self.group.music_info = {'artists': [self.parent_api.get_artist(name=HTMLParser().unescape(top_10_json_response['artist']))]}
         self.remaster_title = top_10_json_response['remasterTitle']
         self.media = top_10_json_response['media']
         self.format = top_10_json_response['format']

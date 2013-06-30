@@ -5,6 +5,7 @@
 #
 # Loosely based on the API implementation from 'whatbetter', by Zachary Denton
 # See https://github.com/zacharydenton/whatbetter
+from HTMLParser import HTMLParser
 
 import sys
 import json
@@ -176,18 +177,25 @@ class GazelleAPI(object):
         """
         return Mailbox(self, 'sentbox', page, sort)
 
-    def get_artist(self, id, name=None):
+    def get_artist(self, id=None, name=None):
         """
         Returns an Artist for the passed ID, associated with this API object. You'll need to call Artist.update_data()
         if the artist hasn't already been cached. This is done on demand to reduce unnecessary API calls.
         """
-        id = int(id)
-        if id in self.cached_artists.keys():
-            artist = self.cached_artists[id]
+        if id:
+            id = int(id)
+            if id in self.cached_artists.keys():
+                artist = self.cached_artists[id]
+            else:
+                artist = Artist(id, self)
+            if name:
+                artist.name = HTMLParser().unescape(name)
+        elif name:
+            artist = Artist(-1, self)
+            artist.name = HTMLParser().unescape(name)
         else:
-            artist = Artist(id, self)
-        if name:
-            artist.name = name
+            raise Exception("You must specify either an ID or a Name to get an artist.")
+
         return artist
 
     def get_tag(self, name):
