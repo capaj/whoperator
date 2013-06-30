@@ -58,9 +58,8 @@ class GazelleAPI(object):
         self.cached_torrents = {}
         self.cached_requests = {}
         self.cached_categories = {}
-        self.site = "https://what.cd/"
+        self.site = "https://what.cd"
         self.past_request_timestamps = []
-        self._login()
 
     def wait_for_rate_limit(self):
         # maximum is 5 requests within 10 secs
@@ -93,29 +92,40 @@ class GazelleAPI(object):
         if r.status_code != 200:
             raise LoginException
         accountinfo = self.request('index')
+        if not accountinfo or 'id' not in accountinfo:
+            raise LoginException
         self.userid = accountinfo['id']
         self.authkey = accountinfo['authkey']
         self.passkey = accountinfo['passkey']
         self.logged_in_user = User(self.userid, self)
         self.logged_in_user.set_index_data(accountinfo)
 
-    def request(self, action, **kwargs):
+    def request(self, action, autologin=True, **kwargs):
         """
         Makes an AJAX request at a given action.
         Pass an action and relevant arguments for that action.
         """
-
-        ajaxpage = 'ajax.php'
-        content = self.unparsed_request(ajaxpage, action, **kwargs)
-        try:
-            if not isinstance(content, text_type):
-                content = content.decode('utf-8')
-            parsed = json.loads(content)
-            if parsed['status'] != 'success':
+        def make_request(action, **kwargs):
+            ajaxpage = 'ajax.php'
+            content = self.unparsed_request(ajaxpage, action, **kwargs)
+            try:
+                if not isinstance(content, text_type):
+                    content = content.decode('utf-8')
+                parsed = json.loads(content)
+                if parsed['status'] != 'success':
+                    raise RequestException
+                return parsed['response']
+            except ValueError:
                 raise RequestException
-            return parsed['response']
-        except ValueError:
-            raise RequestException
+
+        try:
+            return make_request(action, **kwargs)
+        except Exception as e:
+            if autologin:
+                self._login()
+                return make_request(action, **kwargs)
+            else:
+                raise e
 
     def unparsed_request(self, sitepage, action, **kwargs):
         """
@@ -281,6 +291,8 @@ class GazelleAPI(object):
 
         response = self.request(action='top10', type=type, limit=limit)
         top_items = []
+        if not response:
+            raise RequestException
         for category in response:
             results = []
             if type == "torrents":
