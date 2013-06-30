@@ -1,8 +1,13 @@
+import calendar
 import time
+from datetime import datetime
 import os
+import json
 
-from whoperator import app, log_file_path
-from flask import request, Response, redirect, url_for
+from whoperator import app, LOG_FILE_PATH
+from flask import request, Response, redirect, url_for, jsonify, stream_with_context
+
+from whatmanager import what_api
 
 
 ### LOGGING STREAM
@@ -10,18 +15,57 @@ from flask import request, Response, redirect, url_for
 def stream_log():
     def log_events():
         pos = 0
+        event_id = 0
+        last_heartbeat = time.time()
         while True:
-            with open(log_file_path) as log_file:
-                if pos > os.path.getsize(log_file_path):
+            output = ""
+            with open(LOG_FILE_PATH) as log_file:
+                if pos > os.path.getsize(LOG_FILE_PATH):
                     pos = 0
                 log_file.seek(pos)
                 line = log_file.readline()
+                line_elements = line.split(' - ')
                 pos = log_file.tell()
-                if not line:
-                    time.sleep(0.1)
-                    continue
-                yield line
-    return Response(log_events(), content_type='text/event-stream')
+
+                if line:
+                    output = str(json.dumps({'type': 'log',
+                                             'text': line_elements[-1].strip(),
+                                             'id': event_id,
+                                             'date': time.mktime(time.strptime(line_elements[0], "%Y-%m-%d %H:%M:%S"))}))
+                    event_id += 1
+                else:
+                    if time.time() - last_heartbeat >= 10:
+                        last_heartbeat = time.time()
+                        output = str(json.dumps({'type': 'heartbeat', 'text': '--tick--', 'id': event_id, 'date': time.time()}))
+                        event_id += 1
+                    else:
+                        time.sleep(0.1)
+                yield output
+                continue
+
+    return Response(log_events(), content_type='application/json')
+
+
+@app.route('/new_releases')
+def new_releases():
+    response = what_api().get_top_10(type='torrents', limit=10)
+    past_day = response[0]['results']
+
+    unique_group_ids = []
+    unique_items = []
+    for item in past_day:
+        if item.group.id not in unique_group_ids:
+            unique_group_ids.append(item.group.id)
+            unique_items.append(item)
+            if not item.group.has_complete_torrent_list:
+                item.group.update_group_data()
+
+    cleaned_results = [
+        {'title': item.group.name,
+         'artist_name': item.group.music_info['artists'][0].name,
+         'group_id': item.group.id}
+        for item in unique_items]
+    return jsonify({'new_releases': cleaned_results})
 
 ### COLLECTION CRUD
 
@@ -40,7 +84,7 @@ def add_collection():
     pass
 
 
-@app.route('/collection/<int:collection_id>', methods=['POST', 'PUT'])
+@app.route('/collection/<int:collection_id>', methods=['PUT'])
 def modify_collection(collection_id):
     pass
 
@@ -67,7 +111,7 @@ def add_collection_item(collection_id, item_id):
     pass
 
 
-@app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['POST', 'PUT'])
+@app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['PUT'])
 def modify_collection_item(collection_id, item_id):
     pass
 

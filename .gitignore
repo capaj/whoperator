@@ -37,5 +37,7 @@ nosetests.xml
 .log
 
 # Mac
-.DS_Store
+*.DS_Store
 
+# Whoperator specific
+*.cfg
