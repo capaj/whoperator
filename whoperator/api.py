@@ -12,7 +12,7 @@ def log():
             'type': 'log',
             'text': record.msg,
             'id': record_id,
-            'date': record.created,
+            'date': record.asctime,
             'level': record.levelname
         }
 
