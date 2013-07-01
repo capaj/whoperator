@@ -24,10 +24,13 @@ def log():
 @app.route('/artist_info/<int:artist_id>')
 def artist_info(artist_id):
     app.logger.debug("Getting artist_info for %s" % artist_id)
-    artist_item = what_api().get_artist(artist_id)
-    if not artist_item.fully_loaded:
-        app.logger.debug("Artist was not fully loaded...updating data")
-        artist_item.update_data()
+    try:
+        artist_item = what_api().get_artist(artist_id)
+        if not artist_item.fully_loaded:
+            app.logger.debug("Artist was not fully loaded...updating data")
+            artist_item.update_data()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
     return jsonify({'artist_info': artist_item.__dict__()})
 
@@ -35,7 +38,11 @@ def artist_info(artist_id):
 @app.route('/new_releases')
 def new_releases():
     app.logger.debug("Loading /new_releases")
-    response = what_api().get_top_10(type='torrents', limit=10)
+    try:
+        response = what_api().get_top_10(type='torrents', limit=10)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
     past_day = response[0]['results']
 
     unique_group_ids = []
@@ -46,9 +53,11 @@ def new_releases():
             unique_items.append(item)
 
     cleaned_results = [
-        {'title': item.group.name,
-         'artist_name': item.group.music_info['artists'][0].name,
-         'torrent_group_id': item.group.id}
+        {
+            'title': item.group.name,
+            'artists': [{'name': artist.name} for artist in item.group.music_info['artists']],
+            'torrent_group_id': item.group.id
+        }
         for item in unique_items]
     return jsonify({'new_releases': cleaned_results})
 
