@@ -1,5 +1,5 @@
 from whoperator import app, log_history
-from flask import jsonify
+from flask import jsonify, redirect
 
 from whatmanager import what_api
 
@@ -33,6 +33,15 @@ def artist_info(artist_id):
         return jsonify({'error': str(e)})
 
     return jsonify({'artist_info': artist_item.__dict__()})
+
+
+@app.route('/torrent_file/<int:torrent_id>')
+def torrent_file(torrent_id):
+    app.logger.debug("Determining URL for torrent file %s" % torrent_id)
+    try:
+        return redirect(what_api().generate_torrent_link(torrent_id))
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 
 @app.route('/new_releases')
