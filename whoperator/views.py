@@ -4,5 +4,5 @@ from flask import render_template
 
 @app.route('/')
 def home():
-    app.logger.info("Loading index.html")
+    app.logger.debug("Loading index.html")
     return render_template('index.html')

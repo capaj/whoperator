@@ -22,6 +22,7 @@ class Artist(object):
         self.statistics = None
         self.torrent_groups = []
         self.requests = []
+        self.fully_loaded = False
 
         self.parent_api.cached_artists[self.id] = self # add self to cache of known Artist objects
 
@@ -38,6 +39,7 @@ class Artist(object):
         else:
             raise InvalidArtistException("Neither ID or Artist Name is valid, can't update data.")
         self.set_data(response)
+        self.fully_loaded = True
 
     def set_data(self, artist_json_response):
         if self.id > 0 and self.id != artist_json_response['id']:
@@ -62,8 +64,7 @@ class Artist(object):
 
         self.similar_artists_and_score = {}
         for similar_artist_dict in artist_json_response['similarArtists']:
-            similar_artist = self.parent_api.get_artist(similar_artist_dict['artistId'])
-            similar_artist.name = similar_artist_dict['name']
+            similar_artist = self.parent_api.get_artist(similar_artist_dict['artistId'], name=similar_artist_dict['name'])
             self.similar_artists_and_score[similar_artist] = similar_artist_dict['score']
 
         self.statistics = artist_json_response['statistics']
@@ -83,3 +84,22 @@ class Artist(object):
     def __repr__(self):
         return "Artist: %s - ID: %s" % (self.name, self.id)
 
+    def __dict__(self):
+        wanted_attributes = ['id', 'name', 'notifications_enabled', 'has_bookmarked', 'image', 'body', 'vanity_house',
+                             'statistics']
+
+        output_dict = dict([(key, self.__getattribute__(key)) for key in wanted_attributes])
+
+        output_dict['tags'] = [tag.__dict__() for tag in self.tags]
+
+        output_dict['similar_artists'] = [{'id': artist.id, 'name': artist.name, 'score': score}
+                                          for artist, score in self.similar_artists_and_score.iteritems()]
+
+        output_dict['torrent_groups'] = [{'id': torrent_group.id, 'name': torrent_group.name,
+                                          'torrents': [{'id': torrent.id, 'format': torrent.format, 'encoding': torrent.encoding}
+                                                       for torrent in torrent_group.torrents]}
+                                         for torrent_group in self.torrent_groups]
+
+        output_dict['requests'] = [request.__dict__() for request in self.requests]
+
+        return output_dict

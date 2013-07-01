@@ -15,3 +15,9 @@ class Tag(object):
 
     def __repr__(self):
         return "Tag: %s" % self.name
+
+    def __dict__(self):
+        output_dict = {'name': self.name}
+        output_dict['artist_counts'] = dict([(artist.id, count) for artist, count in self.artist_counts.iteritems()])
+
+        return output_dict

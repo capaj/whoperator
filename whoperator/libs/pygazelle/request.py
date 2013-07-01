@@ -27,3 +27,11 @@ class Request(object):
 
     def __repr__(self):
         return "Request: %s - ID: %s" % (self.title, self.id)
+
+    def __dict__(self):
+        wanted_attributes = ['id', 'title', 'year', 'time_added', 'votes', 'bounty']
+
+        output_dict = dict([(key, self.__getattribute__(key)) for key in wanted_attributes])
+        output_dict['category'] = self.category.__dict__()
+
+        return output_dict
