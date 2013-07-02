@@ -27,7 +27,6 @@ class FileScanner(object):
             return False
 
     def scan_directory(self, directory_path, file_data_callback, filetype_filter='*', recurse=True, priority=False):
-        # TODO: Make recursion optional
         if not os.path.isdir(directory_path):
             raise InvalidScanTargetException("Path '%s' is not a directory." % directory_path)
 
