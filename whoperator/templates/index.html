@@ -99,14 +99,16 @@
         </div>
         <div class="container body">
             <ul class="nav nav-tabs" id="section_tabs">
-                <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard</a></li>
-                <li><a href="#management" data-toggle="tab" data-template="management">Management</a></li>
-                <li><a href="#player" data-toggle="tab" data-template="player">Player</a></li>
+                <li><a href="#scan" data-toggle="tab" data-template="scan">Scan</a></li>
+                <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard*</a></li>
+                <li><a href="#management" data-toggle="tab" data-template="management">Management*</a></li>
+                <li><a href="#player" data-toggle="tab" data-template="player">Player*</a></li>
             </ul>
             <div class="tab-content" id="section_panes">
-                <div class="tab-pane active" id="dashboard"></div>
-                <div class="tab-pane active" id="management"></div>
-                <div class="tab-pane active" id="player"></div>
+                <div class="tab-pane" id="scan"></div>
+                <div class="tab-pane" id="dashboard"></div>
+                <div class="tab-pane" id="management"></div>
+                <div class="tab-pane" id="player"></div>
             </div>
             <hr>
             <footer>
@@ -132,8 +134,8 @@
         <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.min.js') }}"><\/script>')</script>
         <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/underscore.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/backbone.min.js') }}"></script>
+        <!--<script src="{{ url_for('static', filename='js/underscore.min.js') }}"></script>-->
+        <!--<script src="{{ url_for('static', filename='js/backbone.min.js') }}"></script>-->
         <script src="{{ url_for('static', filename='js/handlebars.js') }}"></script>
         <script src="{{ url_for('static', filename='js/swfobject.js') }}"></script>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
