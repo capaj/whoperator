@@ -1,47 +1,37 @@
 /* Quick scroll to anchor fix */
 window.addEventListener("hashchange", function() { scrollBy(0, -60) })
 
-$('a[href="#logModal"]').on('click', showLog);
+function jsontpl(json, tpl, where) {
+    var tpl_return = [], json_return = [], template;
 
-/* Import Template */
-function fetch_tpl(path, callback) {
-    var source;
-    var template;
-
-    $.ajax({
-        url: path,
-        success: function(data) {
-            source    = data;
-            template  = Handlebars.compile(source);
-
-            if (callback) {
-                callback(template, data);
-            } else {
-                $('#content').html(template);
+    $.when(
+        $.ajax({
+            dataType: "json",
+            url: json,
+            success: function(data) {
+                json_return = data;
             }
-        }
+        }), $.ajax({
+            dataType: "text",
+            url: tpl,
+            success: function(data) {
+                template = Handlebars.compile(data);
+            }
+        })
+    ).done(function(){
+        html = template(json_return);
+        $(where).html(html);        
     });
 }
 
-//run our template loader with callback
-
-$('#sections a[data-toggle="tab"]').on('shown', function (e) {
-    fetch_tpl('/static/tpl/' + $(e.target).attr('data-template') + '.handlebars');
+$('#section_tabs a[data-toggle="tab"]').on('shown', function(e) {
+    jsontpl('/log', '/static/tpl/' + $(this).attr('data-template') + '.handlebars', '#' + $(this).attr('data-template'));
 });
 
-$('#sections a:first').tab('show');
-function showLog() {
-    $.getJSON('/log',
-        function(data) {
-            var json_log = data;
-            $.ajax({
-                url: '/static/tpl/log.handlebars',
-                success: function(data) {
-                    template  = Handlebars.compile(data);
-                    var html = template(json_log);
-                    $('#logModal .modal-body ul').html(html);
-                }
-            });
-        }
-    );
-}
+$('#section_tabs a[data-template="dashboard"]').on('shown', function(e) { });
+
+$('#dashboard').on('shown', function (e) { });
+
+$('#section_tabs a:first').tab('show');
+
+$('a[href="#logModal"]').on('click', jsontpl('/log', '/static/tpl/log.handlebars','#logModal .modal-body'));

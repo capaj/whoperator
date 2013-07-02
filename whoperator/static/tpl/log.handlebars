@@ -1,6 +1,20 @@
-<ul>
 {{#if json_log}}
+<table class="table table-condensed">
+	<thead>
+		<tr>
+			<th>Date</th>
+			<th>Type</th>
+			<th>Message</th>
+		</tr>
+	</thead>
+	<tbody>
 	{{#each json_log}}
-		<li>{{date}} - {{type}} - {{text}}
+		<tr>
+			<td>{{date}}</td>
+			<td>{{type}}</td>
+			<td>{{text}}</td>
+		</tr>
 	{{/each}}
+	</tbody>
+</table>
 {{/if}}

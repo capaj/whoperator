@@ -34,7 +34,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <a class="brand" href="#">What.CD Operator</a>
+                    <a class="brand" href="#">Whoperator</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             <li><a href="#"><i class="icon-backward icon-white"></i> <i class="icon-pause icon-white"></i> <i class="icon-forward icon-white"></i></a><li>
@@ -98,12 +98,15 @@
             </div>
         </div>
         <div class="container body">
-            <ul class="nav nav-tabs" id="sections">
-                <li><a href="#" data-toggle="tab" data-template="dashboard">Dashboard</a></li>
-                <li><a href="#" data-toggle="tab" data-template="management">Management</a></li>
-                <li><a href="#" data-toggle="tab" data-template="player">Player</a></li>
+            <ul class="nav nav-tabs" id="section_tabs">
+                <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard</a></li>
+                <li><a href="#management" data-toggle="tab" data-template="management">Management</a></li>
+                <li><a href="#player" data-toggle="tab" data-template="player">Player</a></li>
             </ul>
-            <div id="content">
+            <div class="tab-content" id="section_panes">
+                <div class="tab-pane active" id="dashboard"></div>
+                <div class="tab-pane active" id="management"></div>
+                <div class="tab-pane active" id="player"></div>
             </div>
             <hr>
             <footer>
@@ -127,11 +130,12 @@
         </div>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.min.js') }}"><\/script>')</script>
-        <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/underscore.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/backbone.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/handlebars.js') }}"></script>
         <script src="{{ url_for('static', filename='js/swfobject.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/web_socket.js') }}"></script>
         <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     </body>
 </html>
