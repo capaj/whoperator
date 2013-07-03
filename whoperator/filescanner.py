@@ -89,7 +89,10 @@ class FileScanner(object):
 
     def _start_scan_thread(self):
         if not self.scan_thread:
-            self.scan_thread = Thread(target=self._process_scan_queue, name="FileScanner", args=[self.scanning_queue, self.stop_event]).start()
+            self.scan_thread = Thread(target=self._process_scan_queue,
+                                      name="FileScanner",
+                                      args=[self.scanning_queue, self.stop_event])
+            self.scan_thread.start()
 
     def resume_scan(self):
         if len(self.scanning_queue):
@@ -97,7 +100,7 @@ class FileScanner(object):
 
     def stop_scan(self):
         self.stop_event.set()
-        if self.scan_thread.isAlive():
+        if self.scan_thread and self.scan_thread.isAlive():
             self.scan_thread.join()
         self.scan_thread = None
         self.stop_event = Event()
@@ -106,3 +109,5 @@ class FileScanner(object):
     def clear_queue(self):
         self.scanning_queue.clear()
         self.current_scan = None
+
+
