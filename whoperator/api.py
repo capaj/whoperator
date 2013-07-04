@@ -1,7 +1,7 @@
 from whoperator import app, log_history
 from flask import jsonify, redirect
 
-from whatmanager import what_api
+from whoperator.whatmanager import what_api
 
 
 ### LOGGING
