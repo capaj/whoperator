@@ -4,7 +4,8 @@ import os, shutil
 import libs  # adds libs directory to path
 
 from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
+import models.schema
+from models.schema import db as db
 
 app = Flask(__name__)
 
@@ -20,8 +21,16 @@ LOG_FILE_PATH = os.path.abspath(app.config.get('LOG_LOCATION', 'whoperator.log')
 log_history = deque([], maxlen=50)
 
 # Set up DB
-app.config.setdefault('SQLALCHEMY_DATABASE_URI', "sqlite:///whoperator.db")
-db = SQLAlchemy(app)
+def setup_db():
+    app.config.setdefault('SQLALCHEMY_DATABASE_URI', "sqlite:///../whoperator.db")
+    db.init_app(app)
+    ctx = app.test_request_context()
+    ctx.push()
+    db.engine.echo = True
+    db.create_all()
+    ctx.pop()
+
+setup_db()
 
 # Import all the routes
 import views
