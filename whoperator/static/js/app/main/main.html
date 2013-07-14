@@ -1,0 +1,24 @@
+<ul class="nav nav-tabs" id="section_tabs">
+    <li class="active"><a href="#scan" data-toggle="tab" data-template="scan">Scan</a></li>
+    <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard*</a></li>
+    <li><a href="#management" data-toggle="tab" data-template="management">Management*</a></li>
+    <li><a href="#player" data-toggle="tab" data-template="player">Player*</a></li>
+</ul>
+<div class="tab-content" id="section_panes">
+    <div class="tab-pane active" id="scan"
+        data-ng-include="'static/js/app/scan/scan.html'">
+    </div>
+    <div class="tab-pane" id="dashboard"
+        data-ng-include="'static/js/app/dashboard/dashboard.html'">
+    </div>
+    <div class="tab-pane" id="management"
+        data-ng-include="'static/js/app/management/management.html'">
+    </div>
+    <div class="tab-pane" id="player"
+        data-ng-include="'static/js/app/player/player.html'">
+    </div>
+</div>
+<hr>
+<footer>
+    <p>Fuck your copyright.</p>
+</footer>

@@ -1,0 +1,19 @@
+<table class="table table-condensed table-hover" data-ng-controller="PlayerCtrl as playerCtrl">
+    <caption>Now Playing</caption>
+    <thead>
+        <tr>
+            <th>Artist</th>
+            <th>Album</th>
+            <th># + Track</th>
+            <th>Length</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-ng-repeat="track in playerCtrl.tracks">
+            <td data-ng-bind="track.artist"></td>
+            <td data-ng-bind="track.album"></td>
+            <td data-ng-bind="track.title"></td>
+            <td data-ng-bind="track.length"></td>
+        </tr>
+    </tbody>
+</table>

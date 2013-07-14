@@ -1,0 +1,10 @@
+{
+  "name": "whoperator",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "grunt-contrib-watch": "x.x.x",
+    "grunt-contrib-jshint": "x.x.x"
+  }
+}

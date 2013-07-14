@@ -1,0 +1,100 @@
+<div class="row" data-ng-controller="ManagementCtrl as managementCtrl">
+    <div class="span12">
+        <h1 id="myArchive">My Archive</h1>
+        <div class="row">
+            <div class="span7">
+                <ul class="nav nav-pills">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle"
+                            data-toggle="dropdown" href="#">Browse by<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li data-ng-repeat="browseByOption in managementCtrl.archiveSettingsOptions.browseBy">
+                                <a href="#" data-ng-bind="browseByOption"></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle"
+                                data-toggle="dropdown" href="#">Results per page<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li data-ng-repeat="resultPerPageOption in managementCtrl.archiveSettingsOptions.resultsPerPage">
+                                <a href="#" data-ng-bind="resultPerPageOption"></a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle"
+                            data-toggle="dropdown" href="#">Sort by<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li
+                                data-ng-repeat="sortByOption in managementCtrl.archiveSettingsOptions.sortBy"
+                                data-ng-class="{ 'divider': sortByOption === null }">
+                                <a href="#" data-ng-bind="sortByOption"
+                                    data-ng-if="sortByOption !== null">
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="span5">
+                <div class="pagination pagination-right">
+                    <ul>
+                        <li data-ng-repeat="page in managementCtrl.pagination()">
+                            <a href="#" data-ng-bind="page"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th><label class="checkbox select-all"><input type="checkbox"></label></th>
+                    <th>Artist</th>
+                    <th>Date Sync'd</th>
+                    <th>Counts</th>
+                    <th>Collector Settings</th>
+                    <th>Actions</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="item in managementCtrl.items">
+                    <td><label class="checkbox"><input type="checkbox" data-ng-model="item.selected"></label></td>
+                    <td><a href="#" data-ng-bind="item.artist"></a></td>
+                    <td data-ng-bind="item.syncDate"></td>
+                    <td data-ng-bind="item.counts"</td>
+                    <td><a href="#">Settings</a></td>
+                    <td>
+                        <div class="btn-group">
+                            <a class="btn btn-primary dropdown-toggle btn-small"
+                                data-toggle="dropdown" href="#">Action<span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#"><i class="icon-refresh"></i> Sync</a></li>
+                                <li><a href="#"><i class="icon-edit"></i> Edit Collector</a></li>
+                                <li><a href="#"><i class="icon-lock"></i> Lock</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#"><i class="icon-remove"></i>Remove</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <i class="icon-time"></i>
+                        <i class="icon-lock"></i>
+                        <i class="icon-star"></i>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="pagination pagination-right">
+            <ul>
+                <li data-ng-repeat="page in managementCtrl.pagination()">
+                    <a href="#" data-ng-bind="page"></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
