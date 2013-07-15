@@ -34,28 +34,14 @@
         <div class="container body"
             data-ng-include="'static/js/app/main/main.html'">
         </div>
-
-        <div class="modal hide fade" id="logModal">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Log</h3>
-            </div>
-            <div class="modal-body">
-                <ul class="unstyled">
-                    <li>top</li>
-                    <li>bottom</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn" class="close" data-dismiss="modal">Close</a>
-            </div>
-        </div>
+        
+        {% include 'modal.html' %}
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.min.js') }}"><\/script>')</script>
         <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/underscore.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/vendor/underscore/underscore.min.js') }}"></script>
         <!--<script src="{{ url_for('static', filename='js/backbone.min.js') }}"></script>-->
         <!--<script src="{{ url_for('static', filename='js/handlebars.js') }}"></script>-->
         <!--<script src="{{ url_for('static', filename='js/swfobject.js') }}"></script>-->
