@@ -25,5 +25,9 @@
         this.rTorrentSettings = function() {
             this.contextTemplate = 'static/js/app/settings/rTorrent.html';
         };
+
+        this.keyBindingsSettings = function() {
+            this.contextTemplate = 'static/js/app/settings/keybindings.html';
+        };
     }]);
 })(angular);
