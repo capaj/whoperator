@@ -5,7 +5,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </a>
-        <a class="brand" href="#">Whoperator</a>
+        <a class="brand" href="#" data-ng-click="app.mainTemplate()">Whoperator</a>
         <div class="nav-collapse collapse">
             <ul class="nav">
                 <li><a href="#"><i class="icon-backward icon-white"></i> <i class="icon-pause icon-white"></i> <i class="icon-forward icon-white"></i></a><li>
@@ -30,12 +30,12 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">General</a></li>
-                        <li><a href="#">API</a></li>
-                        <li><a href="#">Cache</a></li>
+                        <li><a href="#" data-ng-click="app.generalSettings()">General</a></li>
+                        <li><a href="#" data-ng-click="app.apiSettings()">API</a></li>
+                        <li><a href="#" data-ng-click="app.cacheSettings()">Cache</a></li>
                         <li class="divider"></li>
                         <li class="nav-header">Plugins</li>
-                        <li><a href="#">rTorrent</a></li>
+                        <li><a href="#" data-ng-click="app.rTorrentSettings()">rTorrent</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
