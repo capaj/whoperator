@@ -1,0 +1,21 @@
+<table class="table table-condensed" data-ng-controller="ScanCtrl as scan">
+	<thead>
+		<tr>
+			<th data-ng-repeat="tableTitle in scan.tableTitles"
+                data-ng-bind="tableTitle">
+            </th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="scanItem in scan.scanItems">
+			<td>
+                <button class="btn btn-mini" type="button"
+                    data-ng-class="scanItem.error === true ? 'btn-danger' : 'btn-success'"
+                    data-ng-bind="scanItem.status">
+                </button>
+            </td>
+			<td data-ng-bind="scanItem.torrent"></td>
+			<td data-ng-bind="scanItem.scanTime"></td>
+		</tr>
+	</tbody>
+</table>

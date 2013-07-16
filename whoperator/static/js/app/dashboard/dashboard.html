@@ -1,0 +1,20 @@
+<div class="hero-unit" data-ng-controller="DashboardCtrl as dashboard">
+    <div class="row">
+        <div class="span7">
+            <h1>Archive Stats</h1>
+            <table class="table">
+                <caption>Stats for impi.us as of May 9th, 2013 @ 14:11 CST</caption>
+                <tbody>
+                    <tr data-ng-repeat="stat in dashboard.stats">
+                        <td data-ng-bind="stat.label"></td>
+                        <td data-ng-bind="stat.data"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><a class="btn btn-primary">Full Statistics</a></p>
+        </div>
+        <div class="span3" id="new_releases">
+            <h3>New Releases</h3>
+        </div>
+    </div>
+</div>

@@ -22,122 +22,38 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
         <script src="{{ url_for('static', filename='js/vendor/modernizr-2.6.2-respond-1.1.0.min.js') }}"></script>
     </head>
-    <body>
+    <body data-ng-app="whoperator">
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
-        <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-                    <a class="brand" href="#">Whoperator</a>
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                            <li><a href="#"><i class="icon-backward icon-white"></i> <i class="icon-pause icon-white"></i> <i class="icon-forward icon-white"></i></a><li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle current-song" data-toggle="dropdown">
-                                    The Strokes - Is This It - 1 - Is This It
-                                    <div class="progress progress-striped">
-                                        <div class="bar" style="width: 20%;"></div>
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">The Strokes - Is This It - 1 - Barely Legal</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 2 - The Modern Age - 3:32</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 3 - Soma - 2:38</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 4 - Barely Legal - 3:54</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 5 - Someday - 3:07</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 6 - Alone, Together - 3:12</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 7 - Last Nite - 3:18</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 8 - Hard to Explain - 3:48</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 9 - New York City Cops - 3:36</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 10 - Trying Your Luck - 3:28</a></li>
-                                    <li><a href="#">The Strokes - Is This It - 11 - Take It or Leave It - 3:16</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="nav-collapse collapse pull-right">
-                        <ul class="nav">
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">General</a></li>
-                                    <li><a href="#">API</a></li>
-                                    <li><a href="#">Cache</a></li>
-                                    <li class="divider"></li>
-                                    <li class="nav-header">Plugins</li>
-                                    <li><a href="#">rTorrent</a></li>
-                                </ul>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queue <span class="badge badge-success">510</span><b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Sync Artist: Warpaint</a></li>
-                                    <li><a href="#">Sync Artist: Suuns</a></li>
-                                    <li><a href="#">Sync Artist: Om</a></li>
-                                    <li><a href="#">Sync Artist: Sleep</a></li>
-                                    <li><a href="#">Sync Artist: Tinariwen</a></li>
-                                    <li><a href="#">Sync Artist: The Warlocks</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="#">Manage</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="#logModal" data-toggle="modal"><i class="icon-list icon-white"></i></a></li>
-                        </ul>
-                        <form class="pull-right navbar-search">
-                            <input class="span2 search-query" type="text" placeholder="Search">
-                        </form>
 
-                    </div><!--/.nav-collapse -->
-                </div>
-            </div>
+        <div class="navbar navbar-inverse navbar-fixed-top"
+            data-ng-include="'static/js/app/topbar/topbar.html'">
         </div>
-        <div class="container body">
-            <ul class="nav nav-tabs" id="section_tabs">
-                <li><a href="#scan" data-toggle="tab" data-template="scan">Scan</a></li>
-                <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard*</a></li>
-                <li><a href="#management" data-toggle="tab" data-template="management">Management*</a></li>
-                <li><a href="#player" data-toggle="tab" data-template="player">Player*</a></li>
-            </ul>
-            <div class="tab-content" id="section_panes">
-                <div class="tab-pane" id="scan"></div>
-                <div class="tab-pane" id="dashboard"></div>
-                <div class="tab-pane" id="management"></div>
-                <div class="tab-pane" id="player"></div>
-            </div>
-            <hr>
-            <footer>
-                <p>Fuck your copyright.</p>
-            </footer>
-        </div> <!-- /container -->
-        <div class="modal hide fade" id="logModal">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Log</h3>
-            </div>
-            <div class="modal-body">
-                <ul class="unstyled">
-                    <li>top</li>
-                    <li>bottom</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn" class="close" data-dismiss="modal">Close</a>
-            </div>
+
+        <div class="container body"
+            data-ng-include="'static/js/app/main/main.html'">
         </div>
+        
+        {% include 'modal.html' %}
+
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='js/vendor/jquery-1.9.1.min.js') }}"><\/script>')</script>
         <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
         <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
-        <!--<script src="{{ url_for('static', filename='js/underscore.min.js') }}"></script>-->
+        <script src="{{ url_for('static', filename='js/vendor/underscore/underscore.min.js') }}"></script>
         <!--<script src="{{ url_for('static', filename='js/backbone.min.js') }}"></script>-->
-        <script src="{{ url_for('static', filename='js/handlebars.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/swfobject.js') }}"></script>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <!--<script src="{{ url_for('static', filename='js/handlebars.js') }}"></script>-->
+        <!--<script src="{{ url_for('static', filename='js/swfobject.js') }}"></script>-->
+        <!--<script src="{{ url_for('static', filename='js/main.js') }}"></script>-->
+
+        <script src="{{ url_for('static', filename='js/vendor/angular/angular.1.1.5.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/app.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/topbar/topbar.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/scan/scan.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/dashboard/dashboard.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/management/management.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/player/player.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/app/services/services.js') }}"></script>
     </body>
 </html>
