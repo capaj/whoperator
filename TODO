@@ -1,0 +1,29 @@
+V.0.0.1
+
+Core System
+	Users
+		Admin
+	Media Scanner
+		File Collections (paths)
+		Scan for MP3, FLAC
+		Feeds Database
+		Reads Meta/ID3
+		Preserve for Torrents (ro)
+	Database
+		Primes with Meta/ID3 Scan
+		Metadata is decoupled from preserved files
+			Enables you to edit db without harming files (later)
+	Angular Frontend
+	Media Player
+		Queue
+			Owned/Shared
+			Feeds -> Output
+		Outputs
+			HTML5/Flash
+	What.CD
+		Scan .torrent
+		Validate .torrent via What.CD API
+		Validate files in .torrents
+
+V.0.0.2
+	Go!
