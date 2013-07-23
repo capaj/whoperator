@@ -1,8 +1,9 @@
 V.0.0.1
 
 Core System
-	Users
-		Admin
+	Users & Roles
+		Admin Role
+		Single User
 	Media Scanner
 		File Collections (paths)
 		Scan for MP3, FLAC
@@ -13,7 +14,10 @@ Core System
 		Primes with Meta/ID3 Scan
 		Metadata is decoupled from preserved files
 			Enables you to edit db without harming files (later)
-	Angular Frontend
+	Frontend
+		Angular
+		SoundManager2
+		Bootstrap
 	Media Player
 		Queue
 			Owned/Shared
@@ -23,7 +27,27 @@ Core System
 	What.CD
 		Scan .torrent
 		Validate .torrent via What.CD API
-		Validate files in .torrents
+		Validate files in .torrent
+
 
 V.0.0.2
-	Go!
+	Users & Roles
+		Add users
+		Add user to admin role
+	Media Scanner
+		Tag Editor
+		Mass Tag Editor
+		Investigate "tagz" FB2K syntax
+	Database
+		Album Art
+	Frontend
+		???
+	Media Player
+		Download Playlist (.zip)
+		Queue
+			Sharable
+		Outputs
+			MPD
+	What.CD
+		Compare local torrents to API
+		Build List of Artists
