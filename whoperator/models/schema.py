@@ -1,8 +1,7 @@
+from datetime import datetime
 from pygazelle import media, format, encoding
-from flask.ext.sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
-
+from whoperator import db
 
 ### What.cd Objects
 
@@ -72,6 +71,32 @@ class Torrent(db.Model):
     # user_id
     # username
 
+    def __init__(self, what_torrent):
+        self.id = what_torrent.id
+        self.torrent_group_id = what_torrent.group.id
+        self.media = what_torrent.media
+        self.format = what_torrent.format
+        self.encoding = what_torrent.encoding
+        self.remaster_year = what_torrent.remaster_year
+        self.remastered = what_torrent.remastered
+        self.remaster_title = what_torrent.remaster_title
+        self.remaster_record_label = what_torrent.remaster_record_label
+        self.remaster_catalogue_number = what_torrent.remaster_catalogue_number
+        self.scene = what_torrent.scene
+        self.has_log = what_torrent.has_log
+        self.has_cue = what_torrent.has_cue
+        self.log_score = what_torrent.log_score
+        self.file_count = what_torrent.file_count
+        self.free_torrent = what_torrent.free_torrent
+        self.size = what_torrent.size
+        self.leechers = what_torrent.leechers
+        self.seeders = what_torrent.seeders
+        self.snatched = what_torrent.snatched
+        self.time = what_torrent.time
+        self.has_file = what_torrent.has_file
+        self.description = what_torrent.description
+        self.file_path = what_torrent.file_path
+
 
 class Song(db.Model):
     __tablename__ = 'song'
@@ -89,6 +114,7 @@ class Song(db.Model):
 ### File Collection Objects
 class TorrentFileCollection(db.Model):
     __tablename__ = 'torrent_file_collection'
+    __public__ = ['name', 'path']
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -97,6 +123,11 @@ class TorrentFileCollection(db.Model):
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
+
+    def __init__(self, name, path):
+        self.name = name
+        self.path = path
+        self.created = self.updated = datetime.now()
 
 
 class MediaFileCollection(db.Model):
@@ -109,6 +140,11 @@ class MediaFileCollection(db.Model):
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
+
+    def __init__(self, name, path):
+        self.name = name
+        self.path = path
+        self.created = self.updated = datetime.now()
 
 
 ### File Objects
@@ -126,6 +162,13 @@ class TorrentFile(db.Model):
     size = db.Column(db.Integer)
     rel_path = db.Column(db.Text)
     info_hash = db.Column(db.String(length=40))
+
+    def __init__(self, collection_id, torrent_id, size, rel_path, info_hash, context=None):
+        self.collection_id = collection_id
+        self.torrent_id = torrent_id
+        self.size = size
+        self.rel_path = rel_path
+        self.info_hash = info_hash
 
 
 class MediaFile(db.Model):
@@ -146,4 +189,3 @@ class MediaFile(db.Model):
     rel_path = db.Column(db.Text)
     mime_type = db.Column(db.Text)
     sha256 = db.Column(db.String(length=64))
-

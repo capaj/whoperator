@@ -4,8 +4,8 @@ import os, shutil
 import libs  # adds libs directory to path
 
 from flask import Flask
-import models.schema
-from models.schema import db as db
+from flask.ext.sqlalchemy import SQLAlchemy
+from filescanner import FileScanner
 
 app = Flask(__name__)
 
@@ -20,15 +20,21 @@ app.config.from_pyfile(CONFIG_PATH)
 LOG_FILE_PATH = os.path.abspath(app.config.get('LOG_LOCATION', 'whoperator.log'))
 log_history = deque([], maxlen=50)
 
+# Create filescanner
+filescanner = FileScanner(app)
+
+# Load db
+db = SQLAlchemy(app)
+
 # Set up DB
 def setup_db():
     app.config.setdefault('SQLALCHEMY_DATABASE_URI', "sqlite:///../whoperator.db")
-    db.init_app(app)
-    ctx = app.test_request_context()
-    ctx.push()
+    # db.init_app(app)
+    # ctx = app.test_request_context()
+    # ctx.push()
     db.engine.echo = True
     db.create_all()
-    ctx.pop()
+    # ctx.pop()
 
 setup_db()
 

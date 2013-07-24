@@ -1,5 +1,8 @@
-from whoperator import app, log_history
-from flask import jsonify, redirect
+import os
+# from sqlalchemy.orm import Session, scoped_session, sessionmaker
+from whoperator import app, log_history, db, filescanner, torrentwrangler
+from models.schema import TorrentFileCollection, TorrentFile
+from flask import jsonify, redirect, request
 
 from whoperator.whatmanager import what_api
 
@@ -72,19 +75,62 @@ def new_releases():
 
 ### COLLECTION CRUD
 
-@app.route('/collection/')
+@app.route('/torrent_collection')
 def list_collections():
-    pass
+    results = TorrentFileCollection.query.all()
+    result_dict = dict([(item.id,
+                         {'path': item.path,
+                          'name': item.name,
+                          'created': item.created,
+                          'updated': item.updated}) for item in results])
+    return jsonify(result_dict)
 
 
-@app.route('/collection/<int:collection_id>')
+@app.route('/torrent_collection/<int:collection_id>')
 def show_collection(collection_id):
-    pass
+    result = TorrentFileCollection.query.get(collection_id)
+    return jsonify({'torrent_collection': "asdf"})
 
 
-@app.route('/collection/', methods=['POST'])
+@app.route('/torrent_collection', methods=['POST'])
 def add_collection():
-    pass
+    path = request.args.get('path', None)
+    name = request.args.get('name', None)
+    scan = request.args.get('scan', True)
+    recurse = request.args.get('recurse', True)
+
+    if path is None or not os.path.exists(path):
+        response = jsonify({'error': 'Path does not exist.'})
+        response.status_code = 500
+        return response
+
+    new_collection = TorrentFileCollection(name, path)
+
+
+    db.session.add(new_collection)
+    db.session.commit()
+    scanner_context = {'collection_id': new_collection.id, 'directory_path': path}
+
+    if scan:
+        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_for_db)
+        filescanner.scan_directory(directory_path=path,
+                                   file_data_callback=TorrentFile,
+                                   context=scanner_context,
+                                   recurse=recurse,
+                                   priority=False)
+
+        # return jsonify({'error': "Exception: " + str(e)})
+
+    return jsonify(
+        {
+            new_collection.id: {
+                'name': new_collection.name,
+                'path': new_collection.path,
+                'created': new_collection.created,
+                'updated': new_collection.updated
+            }
+        }
+    )
 
 
 @app.route('/collection/<int:collection_id>', methods=['PUT'])

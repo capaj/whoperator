@@ -1,6 +1,9 @@
 import os
 from bencode import bencode, bdecode
 from hashlib import sha1
+from whoperator import db
+from whoperator.models.schema import Torrent
+from whoperator.whatmanager import what_api
 
 
 
@@ -20,27 +23,6 @@ class TorrentFile:
             self.contents = bdecode(f.read())
 
 
-class TorrentFileCollection:
-    def __init__(self, base_path):
-        self.base_path = base_path
-
-    def list_torrent_files(self):
-        torrent_files = []
-        for root, dirs, files in os.walk(self.base_path):
-            for file in files:
-                if file.endswith('.torrent'):
-                    try:
-                        torrent_files.append(TorrentFile(os.path.join(root, file)))
-                    except Exception:
-                        pass
-
-
-        return torrent_files
-
-    def list_files_and_info_hashes(self):
-        return dict([(torrent_file.file_path, torrent_file.get_info_hash()) for torrent_file in self.list_torrent_files()])
-
-
 class TorrentValidator:
     def __init__(self, gazelle_api):
         self.gazelle_api = gazelle_api
@@ -54,3 +36,25 @@ class TorrentValidator:
 
     def hash_is_valid_torrent(self, hash):
         pass
+
+
+def read_torrent_file_for_db(path, context):
+    torrent = TorrentFile(path)
+
+    collection_id = context['collection_id']
+    size = os.path.getsize(path)
+    rel_path = os.path.relpath(path, start=context['directory_path'])
+    info_hash = torrent.get_info_hash()
+
+    what_torrent = what_api().get_torrent_from_info_hash(info_hash)
+
+    if what_torrent is not None:
+        torrent_db_item = Torrent.query.get(what_torrent.id)
+        if torrent_db_item is None:
+            torrent_db_item = Torrent(what_torrent)
+            db.session.add(torrent_db_item)
+            db.session.commit()
+
+        return collection_id, torrent_db_item.id, size, rel_path, info_hash
+    else:
+        return None

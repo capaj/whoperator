@@ -134,7 +134,7 @@ class GazelleAPI(object):
         """
         self.wait_for_rate_limit()
 
-        url = "%s/%s" % (self.site, sitepage)
+        url = "%s%s" % (self.site, sitepage)
         params = {'action': action}
         if self.authkey:
             params['auth'] = self.authkey
