@@ -1,5 +1,5 @@
 import os
-# from sqlalchemy.orm import Session, scoped_session, sessionmaker
+from datetime import datetime
 from whoperator import app, log_history, db, filescanner, torrentwrangler
 from models.schema import TorrentFileCollection, TorrentFile
 from flask import jsonify, redirect, request
@@ -73,10 +73,11 @@ def new_releases():
         for item in unique_items]
     return jsonify({'new_releases': cleaned_results})
 
+
 ### COLLECTION CRUD
 
 @app.route('/torrent_collection')
-def list_collections():
+def list_torrent_collections():
     results = TorrentFileCollection.query.all()
     result_dict = dict([(item.id,
                          {'path': item.path,
@@ -87,34 +88,33 @@ def list_collections():
 
 
 @app.route('/torrent_collection/<int:collection_id>')
-def show_collection(collection_id):
+def show_torrent_collection(collection_id):
     result = TorrentFileCollection.query.get(collection_id)
     return jsonify({'torrent_collection': "asdf"})
 
 
 @app.route('/torrent_collection', methods=['POST'])
-def add_collection():
-    path = request.args.get('path', None)
-    name = request.args.get('name', None)
-    scan = request.args.get('scan', True)
-    recurse = request.args.get('recurse', True)
+def add_torrent_collection():
+    path = request.form.get('path', None)
+    name = request.form.get('name', None)
+    scan = request.form.get('scan', True) in ('true', 'True', '1', True)
+    recurse = request.form.get('recurse', True) in ('true', 'True', '1', True)
 
-    if path is None or not os.path.exists(path):
+    if path is None or not os.path.isdir(path):
         response = jsonify({'error': 'Path does not exist.'})
         response.status_code = 500
         return response
 
-    new_collection = TorrentFileCollection(name, path)
-
-
+    new_collection = TorrentFileCollection(name, path, recurse)
     db.session.add(new_collection)
     db.session.commit()
-    scanner_context = {'collection_id': new_collection.id, 'directory_path': path}
 
     if scan:
-        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_for_db)
+        scanner_context = {'collection_id': new_collection.id, 'directory_path': path}
+
+        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
         filescanner.scan_directory(directory_path=path,
-                                   file_data_callback=TorrentFile,
+                                   file_data_callback=None,
                                    context=scanner_context,
                                    recurse=recurse,
                                    priority=False)
@@ -126,6 +126,7 @@ def add_collection():
             new_collection.id: {
                 'name': new_collection.name,
                 'path': new_collection.path,
+                'recurse': new_collection.recurse,
                 'created': new_collection.created,
                 'updated': new_collection.updated
             }
@@ -133,13 +134,74 @@ def add_collection():
     )
 
 
-@app.route('/collection/<int:collection_id>', methods=['PUT'])
-def modify_collection(collection_id):
-    pass
+@app.route('/torrent_collection/<int:collection_id>', methods=['PUT'])
+def modify_torrent_collection(collection_id):
+    collection_db_item = TorrentFileCollection.query.get(collection_id)
+
+    if collection_db_item is None:
+        response = jsonify({'error': 'Unknown collection ID.'})
+        response.status_code = 500
+        return response
+
+    path = request.form.get('path', None)
+    name = request.form.get('name', None)
+
+    path_changed = (path is not None and path != collection_db_item.path)
+    if path_changed:
+        if os.path.isdir(path):
+            collection_db_item.path = path
+        else:
+            response = jsonify({'error': 'Path does not exist.'})
+            response.status_code = 500
+            return response
+
+    recurse_default = collection_db_item.recurse
+
+    name_changed = (name is not None and name != collection_db_item.name)
+    if name_changed:
+        collection_db_item.name = name
+
+    recurse = request.form.get('recurse', recurse_default) in ('true', 'True', '1', True)
+    recurse_changed = (recurse != collection_db_item.recurse)
+    if recurse_changed:
+        collection_db_item.recurse = recurse
+
+    if path_changed or name_changed or recurse_changed:
+        collection_db_item.updated = datetime.now()
+        db.session.commit()
+
+    scan_default = path_changed or recurse_changed
+
+    scan = request.form.get('scan', scan_default) in ('true', 'True', '1', True)
+    if scan:
+        # nuke existing collection files, rescan
+        old_torrentfiles = TorrentFile.query.filter(TorrentFile.collection_id == collection_id)
+        old_torrentfiles.delete()
+        db.session.commit()
+
+        scanner_context = {'collection_id': collection_id, 'directory_path': collection_db_item.path}
+        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
+        filescanner.scan_directory(directory_path=collection_db_item.path,
+                                   file_data_callback=None,
+                                   context=scanner_context,
+                                   recurse=collection_db_item.recurse,
+                                   priority=False)
+
+    return jsonify(
+        {
+            collection_db_item.id: {
+                'name': collection_db_item.name,
+                'path': collection_db_item.path,
+                'recurse': collection_db_item.recurse,
+                'created': collection_db_item.created,
+                'updated': collection_db_item.updated
+            }
+        }
+    )
 
 
-@app.route('/collection/<int:collection_id>', methods=['DELETE'])
-def delete_collection(collection_id):
+@app.route('/torrent_collection/<int:collection_id>', methods=['DELETE'])
+def delete_torrent_collection(collection_id):
     pass
 
 

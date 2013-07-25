@@ -33,7 +33,9 @@ def setup_db():
     # ctx = app.test_request_context()
     # ctx.push()
     db.engine.echo = True
-    db.create_all()
+    if not os.path.isfile("whoperator.db"):
+        import models.schema
+        db.create_all()
     # ctx.pop()
 
 setup_db()

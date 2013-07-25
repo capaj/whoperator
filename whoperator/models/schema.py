@@ -3,12 +3,15 @@ from pygazelle import media, format, encoding
 
 from whoperator import db
 
+
 ### What.cd Objects
 
 class Artist(db.Model):
     __tablename__ = 'artist'
 
     id = db.Column(db.Integer, primary_key=True)
+
+    what_id = db.Column(db.Integer, index=True)
     name = db.Column(db.String(length=255))
     image = db.Column(db.Text)
     body = db.Column(db.Text)
@@ -21,8 +24,11 @@ class TorrentGroup(db.Model):
     __tablename__ = 'torrent_group'
 
     id = db.Column(db.Integer, primary_key=True)
+
+    what_id = db.Column(db.Integer, index=True)
     name = db.Column(db.String(length=255))
 
+    # use db id, not what_id
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
     artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id)
 
@@ -43,6 +49,7 @@ class Torrent(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    # use db id, not what_id
     torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'))
     torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id)
 
@@ -68,11 +75,20 @@ class Torrent(db.Model):
     has_file = db.Column(db.Boolean)
     description = db.Column(db.Text)
     file_path = db.Column(db.Text)
+    created = db.Column(db.TIMESTAMP)
+    updated = db.Column(db.TIMESTAMP)
     # user_id
     # username
 
     def __init__(self, what_torrent):
         self.id = what_torrent.id
+        self.created = datetime.now()
+        self.update_from_what(what_torrent)
+
+    def update_from_what(self, what_torrent):
+        if self.id != what_torrent.id:
+            raise Exception("Tried to update Torrent id %s with data from id %s" % (self.id, what_torrent.id))
+
         self.torrent_group_id = what_torrent.group.id
         self.media = what_torrent.media
         self.format = what_torrent.format
@@ -96,6 +112,7 @@ class Torrent(db.Model):
         self.has_file = what_torrent.has_file
         self.description = what_torrent.description
         self.file_path = what_torrent.file_path
+        self.updated = datetime.now()
 
 
 class Song(db.Model):
@@ -104,6 +121,7 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=255))
 
+    # use db id, not what_id
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
     artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id)
 
@@ -120,13 +138,15 @@ class TorrentFileCollection(db.Model):
 
     name = db.Column(db.String(100))
     path = db.Column(db.Text)
+    recurse = db.Column(db.Boolean)
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, recurse):
         self.name = name
         self.path = path
+        self.recurse = recurse
         self.created = self.updated = datetime.now()
 
 
@@ -137,13 +157,15 @@ class MediaFileCollection(db.Model):
 
     name = db.Column(db.String(100))
     path = db.Column(db.Text)
+    recurse = db.Column(db.Boolean)
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, recurse):
         self.name = name
         self.path = path
+        self.recurse = recurse
         self.created = self.updated = datetime.now()
 
 
@@ -161,7 +183,7 @@ class TorrentFile(db.Model):
 
     size = db.Column(db.Integer)
     rel_path = db.Column(db.Text)
-    info_hash = db.Column(db.String(length=40))
+    info_hash = db.Column(db.String(length=40), index=True)
 
     def __init__(self, collection_id, torrent_id, size, rel_path, info_hash, context=None):
         self.collection_id = collection_id

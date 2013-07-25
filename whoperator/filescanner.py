@@ -86,13 +86,11 @@ class FileScanner(object):
             for processing_callback in processing_callbacks:
                 self.app.logger.debug("Scanning file: %s" % path)
                 processing_result = processing_callback(path, context=context)
-                if processing_result is not None:
+                if processing_result is not None and data_callback is not None:
                     if isinstance(processing_result, (list, tuple)):
                         data_callback(*processing_result, context=context)
                     else:
                         data_callback(processing_result, context=context)
-                else:
-                    self.app.logger.debug("Scan returned None!")
 
             self.current_scan = None
 
