@@ -82,6 +82,7 @@ def list_torrent_collections():
     result_dict = dict([(item.id,
                          {'path': item.path,
                           'name': item.name,
+                          'recurse': item.recurse,
                           'created': item.created,
                           'updated': item.updated}) for item in results])
     return jsonify(result_dict)
@@ -89,8 +90,18 @@ def list_torrent_collections():
 
 @app.route('/torrent_collection/<int:collection_id>')
 def show_torrent_collection(collection_id):
-    result = TorrentFileCollection.query.get(collection_id)
-    return jsonify({'torrent_collection': "asdf"})
+    collection_db_item = TorrentFileCollection.query.get(collection_id)
+    return jsonify(
+        {
+            collection_db_item.id: {
+                'name': collection_db_item.name,
+                'path': collection_db_item.path,
+                'recurse': collection_db_item.recurse,
+                'created': collection_db_item.created,
+                'updated': collection_db_item.updated
+            }
+        }
+    )
 
 
 @app.route('/torrent_collection', methods=['POST'])
@@ -118,8 +129,6 @@ def add_torrent_collection():
                                    context=scanner_context,
                                    recurse=recurse,
                                    priority=False)
-
-        # return jsonify({'error': "Exception: " + str(e)})
 
     return jsonify(
         {
@@ -202,7 +211,15 @@ def modify_torrent_collection(collection_id):
 
 @app.route('/torrent_collection/<int:collection_id>', methods=['DELETE'])
 def delete_torrent_collection(collection_id):
-    pass
+    try:
+        collection_db_item = TorrentFileCollection.query.get(collection_id)
+        name = collection_db_item.name
+        db.session.delete(collection_db_item)
+        db.session.commit()
+        return jsonify({'result': "Deleted Torrent File Collection '%s', id: %s" % (name, collection_id)})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'result': "Failed to delete Torrent File Collection. Exception: %s" % e})
 
 
 ### ITEM CRUD

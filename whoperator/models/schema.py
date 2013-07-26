@@ -30,7 +30,8 @@ class TorrentGroup(db.Model):
 
     # use db id, not what_id
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-    artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id)
+    artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id,
+                             backref=db.backref("torrent_groups", cascade="all,delete"))
 
     wiki_body = db.Column(db.Text)
     wiki_image = db.Column(db.Text)
@@ -51,7 +52,8 @@ class Torrent(db.Model):
 
     # use db id, not what_id
     torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'))
-    torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id)
+    torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id,
+                                    backref=db.backref("torrents", cascade="all,delete"))
 
     media = db.Column(db.Enum(*media.ALL_MEDIAS, name="media_types"))
     format = db.Column(db.Enum(*format.ALL_FORMATS, name="format_types"))
@@ -123,10 +125,12 @@ class Song(db.Model):
 
     # use db id, not what_id
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-    artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id)
+    artist = db.relationship(Artist, primaryjoin=artist_id == Artist.id,
+                             backref=db.backref("songs", cascade="all,delete"))
 
     torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'))
-    torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id)
+    torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id,
+                                    backref=db.backref("songs", cascade="all,delete"))
 
 
 ### File Collection Objects
@@ -176,7 +180,8 @@ class TorrentFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     collection_id = db.Column(db.Integer, db.ForeignKey('torrent_file_collection.id'))
-    collection = db.relationship(TorrentFileCollection, primaryjoin=collection_id == TorrentFileCollection.id)
+    collection = db.relationship(TorrentFileCollection, primaryjoin=collection_id == TorrentFileCollection.id,
+                                 backref=db.backref("torrent_files", cascade="all,delete"))
 
     torrent_id = db.Column(db.Integer, db.ForeignKey('torrent.id'))
     torrent = db.relationship(Torrent, primaryjoin=torrent_id == Torrent.id)
@@ -199,7 +204,8 @@ class MediaFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     collection_id = db.Column(db.Integer, db.ForeignKey('media_file_collection.id'))
-    collection = db.relationship(MediaFileCollection, primaryjoin=collection_id == MediaFileCollection.id)
+    collection = db.relationship(MediaFileCollection, primaryjoin=collection_id == MediaFileCollection.id,
+                                 backref=db.backref("media_files", cascade="all,delete"))
 
     song_id = db.Column(db.Integer, db.ForeignKey('song.id'))
     song = db.relationship(Song, primaryjoin=song_id == Song.id)
