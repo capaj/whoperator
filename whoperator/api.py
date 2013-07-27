@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from whoperator import app, log_history, db, filescanner, torrentwrangler
-from models.schema import TorrentFileCollection, TorrentFile
+from models.schema import TorrentFileCollection, TorrentFile, Torrent
 from flask import jsonify, redirect, request
 
 from whoperator.whatmanager import what_api
@@ -79,29 +79,20 @@ def new_releases():
 @app.route('/torrent_collection')
 def list_torrent_collections():
     results = TorrentFileCollection.query.all()
-    result_dict = dict([(item.id,
-                         {'path': item.path,
-                          'name': item.name,
-                          'recurse': item.recurse,
-                          'created': item.created,
-                          'updated': item.updated}) for item in results])
+    result_dict = dict([(item.id, item.as_dict()) for item in results])
     return jsonify(result_dict)
 
 
 @app.route('/torrent_collection/<int:collection_id>')
 def show_torrent_collection(collection_id):
     collection_db_item = TorrentFileCollection.query.get(collection_id)
-    return jsonify(
-        {
-            collection_db_item.id: {
-                'name': collection_db_item.name,
-                'path': collection_db_item.path,
-                'recurse': collection_db_item.recurse,
-                'created': collection_db_item.created,
-                'updated': collection_db_item.updated
-            }
-        }
-    )
+
+    if collection_db_item is None:
+        response = jsonify({'error': 'Unknown collection ID.'})
+        response.status_code = 500
+        return response
+
+    return jsonify({collection_db_item.id: collection_db_item.as_dict()})
 
 
 @app.route('/torrent_collection', methods=['POST'])
@@ -130,17 +121,7 @@ def add_torrent_collection():
                                    recurse=recurse,
                                    priority=False)
 
-    return jsonify(
-        {
-            new_collection.id: {
-                'name': new_collection.name,
-                'path': new_collection.path,
-                'recurse': new_collection.recurse,
-                'created': new_collection.created,
-                'updated': new_collection.updated
-            }
-        }
-    )
+    return jsonify({new_collection.id: new_collection.as_dict()})
 
 
 @app.route('/torrent_collection/<int:collection_id>', methods=['PUT'])
@@ -196,23 +177,19 @@ def modify_torrent_collection(collection_id):
                                    recurse=collection_db_item.recurse,
                                    priority=False)
 
-    return jsonify(
-        {
-            collection_db_item.id: {
-                'name': collection_db_item.name,
-                'path': collection_db_item.path,
-                'recurse': collection_db_item.recurse,
-                'created': collection_db_item.created,
-                'updated': collection_db_item.updated
-            }
-        }
-    )
+    return jsonify({collection_db_item.id: collection_db_item.as_dict()})
 
 
 @app.route('/torrent_collection/<int:collection_id>', methods=['DELETE'])
 def delete_torrent_collection(collection_id):
     try:
         collection_db_item = TorrentFileCollection.query.get(collection_id)
+
+        if collection_db_item is None:
+            response = jsonify({'error': 'Unknown collection ID.'})
+            response.status_code = 500
+            return response
+
         name = collection_db_item.name
         db.session.delete(collection_db_item)
         db.session.commit()
@@ -224,24 +201,83 @@ def delete_torrent_collection(collection_id):
 
 ### ITEM CRUD
 
-@app.route('/collection/<int:collection_id>/item')
-def list_collection_items(collection_id):
-    pass
+@app.route('/torrent_collection/<int:collection_id>/item')
+def list_torrent_collection_items(collection_id):
+    collection_db_item = TorrentFileCollection.query.get(collection_id)
+
+    if collection_db_item is None:
+        response = jsonify({'error': 'Unknown collection ID.'})
+        response.status_code = 500
+        return response
+
+    torrent_files = collection_db_item.torrent_files
+
+    # Do we want more info here? Not adding torrent and artist info to reduce db access, but we could do it...
+    result_dict = dict([(item.id,
+                         {'collection_id': item.collection_id,
+                          'torrent_id': item.torrent_id,
+                          'size': item.size,
+                          'file_exists': os.path.isfile(os.path.join(collection_db_item.path, item.rel_path)),
+                          'full_path': os.path.join(collection_db_item.path, item.rel_path),
+                          'rel_path': item.rel_path,
+                          'info_hash': item.info_hash}) for item in torrent_files])
+    return jsonify(result_dict)
 
 
-@app.route('/collection/<int:collection_id>/item/<int:item_id>')
-def show_collection_item(collection_id, item_id):
-    pass
+@app.route('/torrent_collection/<int:collection_id>/item/<int:item_id>')
+def show_torrent_collection_item(collection_id, item_id):
+    collection_db_item = TorrentFileCollection.query.get(collection_id)
 
+    if collection_db_item is None:
+        response = jsonify({'error': 'Unknown collection ID.'})
+        response.status_code = 500
+        return response
 
-@app.route('/collection/<int:collection_id>/item/', methods=['POST'])
-def add_collection_item(collection_id, item_id):
-    pass
+    file_db_item = TorrentFile.query.get(item_id)
 
+    if file_db_item is None:
+        response = jsonify({'error': 'Unknown file item ID.'})
+        response.status_code = 500
+        return response
 
-@app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['PUT'])
-def modify_collection_item(collection_id, item_id):
-    pass
+    if file_db_item.collection_id != collection_db_item.id:
+        response = jsonify({'error': 'Item not in specified collection.'})
+        response.status_code = 500
+        return response
+
+    full_path = os.path.join(collection_db_item.path, file_db_item.rel_path)
+
+    if file_db_item.torrent_id > 0:
+        torrent = Torrent.query.get(file_db_item.torrent_id)
+        torrent_details = torrent.as_dict()
+        if torrent is None:
+            response = jsonify({'error': "Couldn't load torrent details."})
+            response.status_code = 500
+            return response
+    else:
+        torrent_details = {}
+
+    result_dict = {file_db_item.id:
+                         {'collection_id': file_db_item.collection_id,
+                          'collection': collection_db_item.as_dict(),
+                          'on_what': file_db_item.id != -1,
+                          'torrent_id': file_db_item.torrent_id,
+                          'torrent': torrent_details,
+                          'size': file_db_item.size,
+                          'file_exists': os.path.isfile(full_path),
+                          'full_path': full_path,
+                          'rel_path': file_db_item.rel_path,
+                          'info_hash': file_db_item.info_hash}}
+    return jsonify(result_dict)
+
+# @app.route('/collection/<int:collection_id>/item/', methods=['POST'])
+# def add_collection_item(collection_id, item_id):
+#     pass
+#
+#
+# @app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['PUT'])
+# def modify_collection_item(collection_id, item_id):
+#     pass
 
 
 @app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['DELETE'])

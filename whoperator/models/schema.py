@@ -116,6 +116,9 @@ class Torrent(db.Model):
         self.file_path = what_torrent.file_path
         self.updated = datetime.now()
 
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
+
 
 class Song(db.Model):
     __tablename__ = 'song'
@@ -152,6 +155,9 @@ class TorrentFileCollection(db.Model):
         self.path = path
         self.recurse = recurse
         self.created = self.updated = datetime.now()
+
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
 
 
 class MediaFileCollection(db.Model):
