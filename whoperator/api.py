@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from sqlalchemy import func
 from whoperator import app, log_history, db, filescanner, torrentwrangler
 from models.schema import TorrentFileCollection, TorrentFile, Torrent
 from flask import jsonify, redirect, request
@@ -78,8 +79,23 @@ def new_releases():
 
 @app.route('/torrent_collection')
 def list_torrent_collections():
-    results = TorrentFileCollection.query.all()
-    result_dict = dict([(item.id, item.as_dict()) for item in results])
+    limit = int(request.args.get('limit', 0))
+    offset = int(request.args.get('offset', 0))
+
+    total_records = TorrentFileCollection.query.count()
+
+    if limit > 0:
+        results = TorrentFileCollection.query.limit(limit).offset(offset)
+    else:
+        results = TorrentFileCollection.query.offset(offset).all()
+
+    result_dict = {
+        'collections': [item.as_dict() for item in results],
+        'limit': limit,
+        'offset': offset,
+        'total': total_records
+    }
+
     return jsonify(result_dict)
 
 
@@ -203,6 +219,9 @@ def delete_torrent_collection(collection_id):
 
 @app.route('/torrent_collection/<int:collection_id>/item')
 def list_torrent_collection_items(collection_id):
+    limit = int(request.args.get('limit', 0))
+    offset = int(request.args.get('offset', 0))
+
     collection_db_item = TorrentFileCollection.query.get(collection_id)
 
     if collection_db_item is None:
@@ -210,17 +229,31 @@ def list_torrent_collection_items(collection_id):
         response.status_code = 500
         return response
 
-    torrent_files = collection_db_item.torrent_files
+    # Is there a more efficient way of doing this than len()?
+    total_records = TorrentFile.query.filter(TorrentFile.collection_id == collection_id).count()
+
+    if limit > 0:
+        torrent_files = TorrentFile.query.filter(TorrentFile.collection_id == collection_id).limit(limit).offset(offset)
+    else:
+        torrent_files = TorrentFile.query.filter(TorrentFile.collection_id == collection_id).offset(offset)
 
     # Do we want more info here? Not adding torrent and artist info to reduce db access, but we could do it...
-    result_dict = dict([(item.id,
-                         {'collection_id': item.collection_id,
-                          'torrent_id': item.torrent_id,
-                          'size': item.size,
-                          'file_exists': os.path.isfile(os.path.join(collection_db_item.path, item.rel_path)),
-                          'full_path': os.path.join(collection_db_item.path, item.rel_path),
-                          'rel_path': item.rel_path,
-                          'info_hash': item.info_hash}) for item in torrent_files])
+    items = [{'collection_id': item.collection_id,
+              'torrent_id': item.torrent_id,
+              'torrent_file_id': item.id,
+              'size': item.size,
+              'file_exists': os.path.isfile(os.path.join(collection_db_item.path, item.rel_path)),
+              'full_path': os.path.join(collection_db_item.path, item.rel_path),
+              'rel_path': item.rel_path,
+              'info_hash': item.info_hash} for item in torrent_files]
+
+    result_dict = {
+        'items': items,
+        'limit': limit,
+        'offset': offset,
+        'total': total_records
+    }
+
     return jsonify(result_dict)
 
 
