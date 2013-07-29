@@ -229,7 +229,6 @@ def list_torrent_collection_items(collection_id):
         response.status_code = 500
         return response
 
-    # Is there a more efficient way of doing this than len()?
     total_records = TorrentFile.query.filter(TorrentFile.collection_id == collection_id).count()
 
     if limit > 0:
