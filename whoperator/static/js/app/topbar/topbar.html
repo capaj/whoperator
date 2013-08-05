@@ -30,13 +30,14 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#" data-ng-click="app.generalSettings()">General</a></li>
-                        <li><a href="#" data-ng-click="app.apiSettings()">API</a></li>
-                        <li><a href="#" data-ng-click="app.cacheSettings()">Cache</a></li>
-                        <li><a href="#" data-ng-click="app.keyBindingsSettings()">Key Bindings</a></li>
+                        <li data-ng-repeat="primary in app.primarySettings">
+                          <a href="#" data-ng-click="app.setTemplate(primary.path)" data-ng-bind="primary.label"></a>
+                        </li>
                         <li class="divider"></li>
                         <li class="nav-header">Plugins</li>
-                        <li><a href="#" data-ng-click="app.rTorrentSettings()">rTorrent</a></li>
+                        <li data-ng-repeat="plugin in app.pluginSettings">
+                          <a href="#" data-ng-click="app.setTemplate(plugin.path)" data-ng-bind="plugin.label"></a>
+                        </li>
                     </ul>
                 </li>
                 <li class="dropdown">
