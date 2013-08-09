@@ -1,14 +1,44 @@
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-body { padding-top:36px; }
-#now-playing { display:none; background:#ddd; }
-.container.body { margin-top:3rem; }
-.pagination { margin:0; }
-ul.nav li.dropdown:hover > ul.dropdown-menu { display: block; }
-ul.nav li.dropdown ul.dropdown-menu { margin-top:-4px;}
+body { padding-top: 55px; }
+#now-playing { display:none; background: #ddd; }
+.container.body { margin-top: 3rem; }
+.pagination { margin: 0; }
+/*ul.nav li.dropdown:hover > ul.dropdown-menu { display: block; }*/
+ul.nav li.dropdown ul.dropdown-menu { margin-top: -4px;}
 
 .current-song .progress{
 	height: 2px;
 	margin-bottom: 0px;
+}
+
+
+
+#library-tree ul li {
+	padding-left:3px;
+}
+
+#library-tree ul li.expanded>a {
+	font-weight:bold;
+}
+
+#library-tree ul li.expanded>a span {
+	font-weight:normal;
+}
+
+#library-tree ul li:last-child, #library-tree ul.inline a {
+	border-bottom:0px dotted #ddd;
+}
+
+#library-tree ul>li>ul {
+	margin-left:8px;
+	border-left:1px dotted #ddd;
+	padding-left:3px;
+}
+
+#library-tree a, #library-tree ul.inline {
+	text-decoration:none;
+	display:block;
+	border-bottom:1px dotted #ddd;
 }

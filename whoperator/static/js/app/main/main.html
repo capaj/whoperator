@@ -3,6 +3,7 @@
     <li><a href="#dashboard" data-toggle="tab" data-template="dashboard">Dashboard*</a></li>
     <li><a href="#management" data-toggle="tab" data-template="management">Management*</a></li>
     <li><a href="#player" data-toggle="tab" data-template="player">Player*</a></li>
+    <li><a href="#library" data-toggle="tab" data-template="player">Library*</a></li>
 </ul>
 <div id="content">
     <div class="tab-content" id="section-panes" data-ng-controller="MainCtrl as main">
@@ -17,6 +18,9 @@
         </div>
         <div class="tab-pane" id="player"
             data-ng-include="'static/js/app/player/player.html'">
+        </div>
+        <div class="tab-pane" id="library"
+            data-ng-include="'static/js/app/library/library.html'">
         </div>
     </div>
 </div>

@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <style>
             body {
-                padding-top: 60px;
+                padding-top: 90px;
                 padding-bottom: 40px;
             }
         </style>
@@ -31,7 +31,7 @@
             data-ng-include="'static/js/app/topbar/topbar.html'">
         </div>
 
-        <div class="container body" data-ng-include="app.contextTemplate">
+        <div class="container-fluid body" data-ng-include="app.contextTemplate">
         </div>
 
         {% include 'modal.html' %}
