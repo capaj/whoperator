@@ -12,7 +12,7 @@
           get: function() {
             return $http.get('/torrent_collection/1/item').then(function(result) {
                 return _.map(result.data.items, function(item) {
-                    return new ScanItem(_.extend(item, { updated: result.data.collections.updated }));
+                    return new ScanItem(_.extend(item, { updated: result.data.items.updated }));
                 });
             });
           }
