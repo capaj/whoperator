@@ -1,77 +1,31 @@
-(function(angular) {
+(function(angular, _) {
     'use strict';
     var app = angular.module('whoperator');
 
-    app.controller('ScanCtrl', [function() {
-        this.tableTitles = ['Status', 'Torrent', 'Scan Time'];
-        this.scanItems = [
-            {
-                status: 'Verified',
-			    torrent: 'Atlas Sound - Axis Tour CD-R - 2006 (CD - MP3 - V0 (VBR)).torrent',
-			    scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26',
-                error: true
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26',
-                error: true
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            },
-            {
-                status: 'Verified',
-                torrent: 'Atlas Sound - Fractal Trax - 2006 (CD - MP3 - 320).torrent',
-                scanTime: '2013-07-01 23:37:26'
-            }
-        ];
+    app.controller('ScanCtrl', ['ScanService', function(ScanService) {
+        this.tableTitles = ['Status', 'Torrent Id', 'Torrent', 'Info Hash', 'Updated Time'];
+        this.scanItems = ScanService.get();
     }]);
-})(angular);
+
+    app.factory('ScanService', ['$http', function($http) {
+        return {
+          get: function() {
+            return $http.get('/torrent_collection').then(function(result) {
+                return _.map(result.data.collections, function(item) {
+                    return new ScanItem(_.extend(item, { updated: result.data.collections.updated }));
+                });
+            });
+          }
+        }
+    }]);
+
+    function ScanItem(data) {
+        // mark as error if collection_id is -1
+        this.torrentId = data.torrent_id;
+        this.error = !!~data.collection_id;
+        this.status = 'verified';
+        this.torrent = data.rel_path;
+        this.infoHash = data.info_hash;
+        this.updated = data.updated;
+    }
+})(angular, _);
