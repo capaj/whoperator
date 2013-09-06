@@ -178,6 +178,9 @@ class MediaFileCollection(db.Model):
         self.recurse = recurse
         self.created = self.updated = datetime.now()
 
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
+
 
 ### File Objects
 class TorrentFile(db.Model):

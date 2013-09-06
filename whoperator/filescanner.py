@@ -3,6 +3,8 @@ import fnmatch
 import os
 from threading import Thread, Event
 
+# TODO: Add scan completion callbacks and track scans that haven't completed
+
 
 class InvalidScanTargetException(Exception):
     pass
