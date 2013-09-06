@@ -20,9 +20,9 @@
     }]);
 
     function ScanItem(data) {
-        // mark as error if collection_id is -1
         this.torrentId = data.torrent_id;
-        this.error = !!~data.collection_id;
+        // mark as error if collection_id is -1
+        this.error = !~data.collection_id;
         this.status = 'verified';
         this.torrent = data.rel_path;
         this.infoHash = data.info_hash;
