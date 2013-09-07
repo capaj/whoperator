@@ -1,6 +1,7 @@
 from flask import jsonify
+from pygazelle.api import LoginException
 from whoperator import app
-from whoperator.whatmanager import what_api
+from whoperator.whatmanager import what_api, what_invalidate_instance
 
 
 @app.route('/new_releases')
@@ -28,3 +29,15 @@ def new_releases():
         }
         for item in unique_items if item.group.music_info is not None]
     return jsonify({'new_releases': cleaned_results})
+
+
+@app.route('/validate_what_login')
+def validate_what_login():
+    what_invalidate_instance()
+
+    try:
+        what_api()._login()
+        return jsonify({'status': "success",
+                        'user': what_api().logged_in_user.__dict__()})
+    except Exception:
+        return jsonify({'status': "failure"})
