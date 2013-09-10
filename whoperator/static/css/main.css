@@ -13,7 +13,14 @@ ul.nav li.dropdown ul.dropdown-menu { margin-top: -4px;}
 	margin-bottom: 0px;
 }
 
+table {
+	font-size:12px;
+}
 
+table .btn-mini {
+	font-size:12px;
+	line-height:16px;
+}
 
 #library-tree ul li {
 	padding-left:3px;
