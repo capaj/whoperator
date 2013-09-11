@@ -13,14 +13,16 @@ ul.nav li.dropdown ul.dropdown-menu { margin-top: -4px;}
 	margin-bottom: 0px;
 }
 
-table {
+
+table.table-condensed.table-tight {
 	font-size:12px;
 }
 
-table .btn-mini {
+table.table-condensed.table-tight .btn-mini {
 	font-size:12px;
 	line-height:16px;
 }
+
 
 #library-tree ul li {
 	padding-left:3px;
@@ -48,4 +50,13 @@ table .btn-mini {
 	text-decoration:none;
 	display:block;
 	border-bottom:1px dotted #ddd;
+}
+
+.navbar-fixed-top .navbar-inner {
+	padding-left:1rem;
+	padding-right:1rem;
+}
+
+.navbar-search .search-query {
+	padding: 13px 14px;
 }

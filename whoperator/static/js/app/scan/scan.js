@@ -3,7 +3,7 @@
     var app = angular.module('whoperator');
 
     app.controller('ScanCtrl', ['ScanService', function(ScanService) {
-        this.tableTitles = ['Status', 'Torrent Id', 'Torrent', 'Info Hash', 'Updated Time'];
+        this.tableTitles = ['Status', 'Torrent ID', 'Torrent', 'Info Hash', 'Updated Time'];
         this.scanItems = ScanService.get();
     }]);
 
