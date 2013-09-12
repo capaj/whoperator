@@ -22,8 +22,8 @@
     function ScanItem(data) {
         this.torrentId = data.torrent_id;
         // mark as error if collection_id is -1
-        this.error = !~data.collection_id;
-        this.status = 'verified';
+        this.error = !~data.torrent_id;
+        this.status = this.error ? 'invalid' : 'verified';
         this.torrent = data.rel_path;
         this.infoHash = data.info_hash;
         this.updated = data.updated;
