@@ -28,8 +28,11 @@ table.table-condensed.table-tight .btn-mini {
 	padding-left:3px;
 }
 
+#library-tree ul li.selected>a {
+	background:#e5f3f9;
+}
+
 #library-tree ul li.expanded>a {
-	font-weight:bold;
 }
 
 #library-tree ul li.expanded>a span {
