@@ -29,6 +29,9 @@ table.table-condensed.table-tight .btn-mini {
 	line-height:16px;
 }
 
+#scanList {
+	table-layout: fixed;
+}
 
 #library-tree ul li {
 	padding-left:3px;

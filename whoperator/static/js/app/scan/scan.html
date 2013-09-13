@@ -1,4 +1,4 @@
-<table class="table table-condensed table-tight" data-ng-controller="ScanCtrl as scan">
+<table id="scanList" class="table table-condensed table-tight" data-ng-controller="ScanCtrl as scan">
   <thead>
     <tr>
       <th class="span1">Status</th>
@@ -10,16 +10,16 @@
   </thead>
   <tbody>
     <tr data-ng-repeat="torrentFileItem in scan.torrentFileItems">
-      <td class="span1">
+      <td>
         <button class="btn btn-mini btn-block" type="button"
           data-ng-class="torrentFileItem.error === true ? 'btn-danger' : 'btn-success'"
           data-ng-bind="torrentFileItem.status">
         </button>
       </td>
-      <td class="span1"><a data-ng-href="https://what.cd/torrents.php?torrentid={{torrentFileItem.torrentId}}" data-ng-bind="torrentFileItem.torrentId"></a></td>
-      <td class="span6" data-ng-bind="torrentFileItem.torrent"></td>
-      <td class="span3" data-ng-bind="torrentFileItem.infoHash"></td>
-      <td class="span2">{{ scan.torrentFileCollections[0].updated }}</td>
+      <td><a data-ng-href="https://what.cd/torrents.php?torrentid={{torrentFileItem.torrentId}}" data-ng-bind="torrentFileItem.torrentId"></a></td>
+      <td data-ng-bind="torrentFileItem.torrent"></td>
+      <td data-ng-bind="torrentFileItem.infoHash"></td>
+      <td>{{ scan.torrentFileCollections[0].updated }}</td>
     </tr>
   </tbody>
 </table>
