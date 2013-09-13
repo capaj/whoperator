@@ -4,7 +4,6 @@
 
     app.controller('ScanCtrl', ['TorrentFileCollectionService', 'TorrentFileService',
         function(TorrentFileCollectionService, TorrentFileService) {
-            this.tableTitles = ['Status', 'Torrent ID', 'Torrent', 'Info Hash', 'Updated'];
             this.torrentFileCollections = TorrentFileCollectionService.get();
             this.torrentFileItems = TorrentFileService.get();
     }]);
