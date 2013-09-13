@@ -7,7 +7,15 @@
     <a class="brand" href="#" data-ng-click="app.mainTemplate()">Whoperator</a>
     <div class="nav-collapse collapse">
         <ul class="nav">
-            <li><a href="#"><i class="icon-backward icon-white"></i> <i class="icon-pause icon-white"></i> <i class="icon-forward icon-white"></i></a><li>
+            <li>
+                <a href="#"><i class="icon-backward icon-white"></i></a>
+            </li>
+            <li>
+                <a href="#" onclick="soundManager.play('testTrack');"><i class="icon-play icon-white"></i></a>
+            </li>
+            <li>
+                <a href="#"><i class="icon-forward icon-white"></i></a>
+            </li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle current-song"
                     data-toggle="dropdown"
