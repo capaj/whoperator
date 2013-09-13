@@ -18,6 +18,12 @@ table.table-condensed.table-tight {
 	font-size:12px;
 }
 
+table.table-condensed.table-tight td, table.table-condensed.table-tight th {
+	white-space: nowrap;
+	overflow: hidden;
+ 	text-overflow: ellipsis;
+ }
+
 table.table-condensed.table-tight .btn-mini {
 	font-size:12px;
 	line-height:16px;
@@ -71,3 +77,4 @@ table.table-condensed.table-tight .btn-mini {
 #logModal ul li:last-child {
 	border-bottom:0px;
 }
+
