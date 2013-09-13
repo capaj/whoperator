@@ -20,7 +20,7 @@
 
     function LogItem(data) {
         this.id = data.id;
-        this.date = data.date;
+        this.time = moment(data.date).format("MMM-DD HH:mm:ss");
         this.level = data.level;
         this.text = data.text;
         this.type = data.type;

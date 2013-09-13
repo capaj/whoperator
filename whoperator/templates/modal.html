@@ -1,3 +1,5 @@
+{# raw tags turn off jinja templating so that angular will work #}
+{% raw %}
 <div class="modal hide fade" id="logModal" data-ng-controller="LogCtrl as log">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -5,10 +7,11 @@
     </div>
     <div class="modal-body">
         <ul class="unstyled">
-            <li data-ng-repeat="logItem in log.logItems" data-ng-bind="logItem.text"></li>
+            <li data-ng-repeat="logItem in log.logItems" class="{{ logItem.type }}-{{ logItem.level }}">{{ logItem.time }} - {{ logItem.level }} - {{ logItem.text }}</li>
         </ul>
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" class="close" data-dismiss="modal">Close</a>
     </div>
 </div>
+{% endraw %}
