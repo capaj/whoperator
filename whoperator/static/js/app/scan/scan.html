@@ -7,17 +7,17 @@
     </tr>
   </thead>
   <tbody>
-    <tr data-ng-repeat="scanItem in scan.scanItems">
+    <tr data-ng-repeat="torrentFileItem in scan.torrentFileItems">
       <td>
         <button class="btn btn-mini btn-block" type="button"
-          data-ng-class="scanItem.error === true ? 'btn-danger' : 'btn-success'"
-          data-ng-bind="scanItem.status">
+          data-ng-class="torrentFileItem.error === true ? 'btn-danger' : 'btn-success'"
+          data-ng-bind="torrentFileItem.status">
         </button>
       </td>
-      <td><a data-ng-href="https://what.cd/torrents.php?torrentid={{scanItem.torrentId}}" data-ng-bind="scanItem.torrentId"></a></td>
-      <td data-ng-bind="scanItem.torrent"></td>
-      <td data-ng-bind="scanItem.infoHash"></td>
-      <td data-ng-bind="scanItem.updated"></td>
+      <td><a data-ng-href="https://what.cd/torrents.php?torrentid={{torrentFileItem.torrentId}}" data-ng-bind="torrentFileItem.torrentId"></a></td>
+      <td data-ng-bind="torrentFileItem.torrent"></td>
+      <td data-ng-bind="torrentFileItem.infoHash"></td>
+      <td>{{ scan.torrentFileCollections[0].updated }}</td>
     </tr>
   </tbody>
 </table>
