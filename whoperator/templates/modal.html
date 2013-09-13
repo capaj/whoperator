@@ -7,7 +7,7 @@
     </div>
     <div class="modal-body">
         <ul class="unstyled">
-            <li data-ng-repeat="logItem in log.logItems" class="{{ logItem.type }}-{{ logItem.level }}">{{ logItem.time }} - {{ logItem.level }} - {{ logItem.text }}</li>
+            <li data-ng-repeat="logItem in log.logItems | orderBy:'id':true" class="{{ logItem.type }}-{{ logItem.level }}">{{ logItem.time }} - {{ logItem.level }} - {{ logItem.text }}</li>
         </ul>
     </div>
     <div class="modal-footer">
