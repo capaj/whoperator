@@ -63,3 +63,11 @@ table.table-condensed.table-tight .btn-mini {
 .navbar-search .search-query {
 	padding: 13px 14px;
 }
+
+#logModal ul li {
+	border-bottom:1px dotted #ddd;
+}
+
+#logModal ul li:last-child {
+	border-bottom:0px;
+}
