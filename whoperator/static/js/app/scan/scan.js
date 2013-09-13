@@ -4,7 +4,7 @@
 
     app.controller('ScanCtrl', ['TorrentFileCollectionService', 'TorrentFileService',
         function(TorrentFileCollectionService, TorrentFileService) {
-            this.tableTitles = ['Status', 'Torrent ID', 'Torrent', 'Info Hash', 'Updated Time'];
+            this.tableTitles = ['Status', 'Torrent ID', 'Torrent', 'Info Hash', 'Updated'];
             this.torrentFileCollections = TorrentFileCollectionService.get();
             this.torrentFileItems = TorrentFileService.get();
     }]);
@@ -45,7 +45,7 @@
         this.name = data.name;
         this.path = data.path;
         this.recurse = data.recurse;
-        this.updated = data.updated;
+        this.updated = moment(data.updated).fromNow();
     }
 
     function TorrentFileItem(data) {
@@ -55,6 +55,5 @@
         this.status = this.error ? 'invalid' : 'verified';
         this.torrent = data.rel_path;
         this.infoHash = data.info_hash;
-        this.updated = data.updated;
     }
 })(angular, _);
