@@ -29,7 +29,7 @@ table.table-condensed.table-tight .btn-mini {
 	line-height:16px;
 }
 
-#scanList {
+.table-fixed {
 	table-layout: fixed;
 }
 
