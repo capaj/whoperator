@@ -18,11 +18,20 @@ table.table-condensed.table-tight {
 	font-size:12px;
 }
 
+table.table-condensed.table-tight td, table.table-condensed.table-tight th {
+	white-space: nowrap;
+	overflow: hidden;
+ 	text-overflow: ellipsis;
+ }
+
 table.table-condensed.table-tight .btn-mini {
 	font-size:12px;
 	line-height:16px;
 }
 
+#scanList {
+	table-layout: fixed;
+}
 
 #library-tree ul li {
 	padding-left:3px;
@@ -63,3 +72,12 @@ table.table-condensed.table-tight .btn-mini {
 .navbar-search .search-query {
 	padding: 13px 14px;
 }
+
+#logModal ul li {
+	border-bottom:1px dotted #ddd;
+}
+
+#logModal ul li:last-child {
+	border-bottom:0px;
+}
+
