@@ -241,5 +241,5 @@ def show_torrent_collection_item(collection_id, item_id):
 
 
 @app.route('/collection/<int:collection_id>/item/<int:item_id>', methods=['DELETE'])
-def delete_collection_item(collection_id, item_id):
+def delete_torrent_collection_item(collection_id, item_id):
     pass
