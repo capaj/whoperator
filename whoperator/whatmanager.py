@@ -9,3 +9,8 @@ def what_api():
     if not _what_api_instance:
         _what_api_instance = GazelleAPI(username=app.config.get('WHAT_USER'), password=app.config.get('WHAT_PASS'))
     return _what_api_instance
+
+
+def what_invalidate_instance():
+    global _what_api_instance
+    _what_api_instance = None

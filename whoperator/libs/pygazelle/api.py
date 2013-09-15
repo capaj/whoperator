@@ -88,7 +88,7 @@ class GazelleAPI(object):
         loginpage = 'https://what.cd/login.php'
         data = {'username': self.username,
                 'password': self.password}
-        r = self.session.post(loginpage, data=data)
+        r = self.session.post(loginpage, data=data, timeout=5)
         if r.status_code != 200:
             raise LoginException
         accountinfo = self.request('index')

@@ -107,6 +107,14 @@ class User(object):
     def __repr__(self):
         return "User: %s - ID: %s" % (self.username, self.id)
 
+    def __dict__(self):
+        wanted_attributes = ['id', 'username', 'avatar', 'is_friend', 'profile_text', 'notifications',
+                             'stats', 'ranks', 'personal', 'community']
+
+        output_dict = dict([(key, self.__getattribute__(key)) for key in wanted_attributes])
+
+        return output_dict
+
 #URL:
 #ajax.php?action=usersearch
 #Argument:
