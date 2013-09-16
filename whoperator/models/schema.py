@@ -19,6 +19,25 @@ class Artist(db.Model):
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
 
+    def __init__(self, what_artist=None):
+        self.created = self.updated = datetime.now()
+        if what_artist is not None:
+            self.update_from_what(what_artist)
+
+    def update_from_what(self, what_artist):
+        if self.what_id and self.what_id != what_artist.id:
+            raise Exception("Tried to update Artist id %s with data from id %s" % (self.id, what_artist.id))
+
+        self.what_id = what_artist.id
+        self.name = what_artist.name
+        self.image = what_artist.image
+        self.body = what_artist.body
+        self.vanity_house = what_artist.vanity_house
+        self.updated = datetime.now()
+
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
+
 
 class TorrentGroup(db.Model):
     __tablename__ = 'torrent_group'
@@ -43,6 +62,30 @@ class TorrentGroup(db.Model):
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
+
+    def __init__(self, what_torrentgroup=None):
+        self.created = self.updated = datetime.now()
+        if what_torrentgroup is not None:
+            self.update_from_what(what_torrentgroup)
+
+    def update_from_what(self, what_torrentgroup):
+        if self.what_id and self.what_id != what_torrentgroup.id:
+            raise Exception("Tried to update Album (TorrentGroup) id %s with data from id %s" % (self.id, what_torrentgroup.id))
+
+        self.what_id = what_torrentgroup.id
+        self.name = what_torrentgroup.name
+        self.wiki_body = what_torrentgroup.wiki_body
+        self.wiki_image = what_torrentgroup.wiki_image
+        self.year = what_torrentgroup.year
+        self.record_label = what_torrentgroup.record_label
+        self.catalogue_number = what_torrentgroup.catalogue_number
+        self.vanity_house = what_torrentgroup.vanity_house
+        self.last_mod_time = what_torrentgroup.last_mod_time
+
+        self.updated = datetime.now()
+
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
 
 
 class Torrent(db.Model):
@@ -84,7 +127,9 @@ class Torrent(db.Model):
 
     def __init__(self, what_torrent):
         self.id = what_torrent.id
-        self.created = datetime.now()
+        self.created = self.updated = datetime.now()
+
+        # TODO: make update optional so that we can create without pulling from what
         self.update_from_what(what_torrent)
 
     def update_from_what(self, what_torrent):
@@ -134,6 +179,11 @@ class Song(db.Model):
     torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'))
     torrent_group = db.relationship(TorrentGroup, primaryjoin=torrent_group_id == TorrentGroup.id,
                                     backref=db.backref("songs", cascade="all,delete"))
+
+    def __init__(self, name, artist_id, torrent_group_id):
+        self.name = name
+        self.artist_id = artist_id
+        self.torrent_group_id = torrent_group_id
 
 
 ### File Collection Objects
@@ -206,6 +256,9 @@ class TorrentFile(db.Model):
         self.rel_path = rel_path
         self.info_hash = info_hash
 
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
+
 
 class MediaFile(db.Model):
     __tablename__ = 'media_file'
@@ -226,3 +279,15 @@ class MediaFile(db.Model):
     rel_path = db.Column(db.Text)
     mime_type = db.Column(db.Text)
     sha256 = db.Column(db.String(length=64))
+
+    def __init__(self, collection_id, song_id, torrent_file_id, size, rel_path, mime_type, sha256):
+        self.collection_id = collection_id
+        self.song_id = song_id
+        self.torrent_file_id = torrent_file_id
+        self.size = size
+        self.rel_path = rel_path
+        self.mime_type = mime_type
+        self.sha256 = sha256
+
+    def as_dict(self):
+        return dict([(c.name, getattr(self, c.name)) for c in self.__table__.columns])
