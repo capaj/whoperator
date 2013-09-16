@@ -28,7 +28,10 @@ class Artist(object):
 
     def update_data(self):
         if self.id > 0:
-            response = self.parent_api.request(action='artist', id=self.id)
+            try:
+                response = self.parent_api.request(action='artist', id=self.id)
+            except Exception as e:
+                raise InvalidArtistException(str(e))
         elif self.name:
             self.name = HTMLParser().unescape(self.name)
             try:
