@@ -1,6 +1,7 @@
 from flask import jsonify, request
+from sqlalchemy.orm import joinedload
 from whoperator import app, db
-from whoperator.models.schema import Artist
+from whoperator.models.schema import Artist, TorrentGroup
 from whoperator.whatmanager import what_api
 
 
@@ -52,9 +53,16 @@ def what_artist_info(artist_id, is_what_id):
                 what_artist_item.update_data()
 
             db_artist_item = Artist(what_artist=what_artist_item)
+
+            for what_torrentgroup in what_artist_item.torrent_groups:
+                db_torrent_group = TorrentGroup(what_torrentgroup=what_torrentgroup)
+                db_artist_item.torrent_groups.append(db_torrent_group)
+                db.session.add(db_torrent_group)
+
             db.session.add(db_artist_item)
             db.session.commit()
         except Exception as e:
+            app.logger.exception(e)
             return jsonify({'error': "%s -- %s" % (type(e), str(e))})
 
     if db_artist_item:

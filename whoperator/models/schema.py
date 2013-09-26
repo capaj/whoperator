@@ -1,10 +1,25 @@
 from datetime import datetime
 from pygazelle import media, format, encoding
+from sqlalchemy import Table
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from whoperator import db
 
 
 ### What.cd Objects
+
+class ArtistAppearance(db.Model):
+    __tablename__ = 'artist_appearance'
+
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), primary_key=True)
+    torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'), primary_key=True)
+
+    artist = db.relationship("Artist", primaryjoin="ArtistAppearance.artist_id == Artist.id",
+                             backref=db.backref("torrent_groups", cascade="all, delete-orphan"))
+    
+    torrent_group = db.relationship("TorrentGroup", primaryjoin="ArtistAppearance.torrent_group_id == TorrentGroup.id",
+                                    backref=db.backref("artists", cascade="all, delete-orphan"))
+
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -18,6 +33,9 @@ class Artist(db.Model):
     vanity_house = db.Column(db.Boolean)
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
+
+    torrent_groups = association_proxy("torrent_groups", "torrent_group",
+                                       creator=lambda torrent_group: ArtistAppearance(torrent_group=torrent_group))
 
     def __init__(self, what_artist=None):
         self.created = self.updated = datetime.now()
@@ -47,10 +65,8 @@ class TorrentGroup(db.Model):
     what_id = db.Column(db.Integer, index=True)
     name = db.Column(db.String(length=255))
 
-    # use db id, not what_id
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
-    artist = db.relationship(Artist, primaryjoin="TorrentGroup.artist_id == Artist.id",
-                             backref=db.backref("torrent_groups", cascade="all,delete"))
+    artists = association_proxy("artists", "artist",
+                                   creator=lambda artist: ArtistAppearance(artist=artist))
 
     wiki_body = db.Column(db.Text)
     wiki_image = db.Column(db.Text)
@@ -58,7 +74,7 @@ class TorrentGroup(db.Model):
     record_label = db.Column(db.String(length=100))
     catalogue_number = db.Column(db.String(length=100))
     vanity_house = db.Column(db.Boolean)
-    last_mod_time = db.Column(db.DATETIME)
+    time = db.Column(db.DATETIME)
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
@@ -80,7 +96,7 @@ class TorrentGroup(db.Model):
         self.record_label = what_torrentgroup.record_label
         self.catalogue_number = what_torrentgroup.catalogue_number
         self.vanity_house = what_torrentgroup.vanity_house
-        self.last_mod_time = what_torrentgroup.last_mod_time
+        self.time = what_torrentgroup.time
 
         self.updated = datetime.now()
 
