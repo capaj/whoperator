@@ -66,7 +66,9 @@ def what_artist_info(artist_id, is_what_id):
             return jsonify({'error': "%s -- %s" % (type(e), str(e))})
 
     if db_artist_item:
-        return jsonify({'artist_info': db_artist_item.as_dict()})
+        artist_dict = db_artist_item.as_dict()
+        artist_dict['torrent_groups'] = [group.as_dict() for group in db_artist_item.torrent_groups]
+        return jsonify({'artist_info': artist_dict})
     elif not lookup:
         app.logger.debug("Artist not in database. Try again with a what id and lookup enabled to search remotely.")
         return jsonify({'error': "Artist not in database. Try again with a what id and lookup enabled to search remotely."})

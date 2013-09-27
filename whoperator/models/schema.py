@@ -3,22 +3,16 @@ from pygazelle import media, format, encoding
 from sqlalchemy import Table
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from whoperator import db
+from whoperator import db, app
 
 
 ### What.cd Objects
 
-class ArtistAppearance(db.Model):
-    __tablename__ = 'artist_appearance'
 
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), primary_key=True)
-    torrent_group_id = db.Column(db.Integer, db.ForeignKey('torrent_group.id'), primary_key=True)
-
-    artist = db.relationship("Artist", primaryjoin="ArtistAppearance.artist_id == Artist.id",
-                             backref=db.backref("torrent_groups", cascade="all, delete-orphan"))
-    
-    torrent_group = db.relationship("TorrentGroup", primaryjoin="ArtistAppearance.torrent_group_id == TorrentGroup.id",
-                                    backref=db.backref("artists", cascade="all, delete-orphan"))
+artist_appearances = db.Table('artist_appearances',
+    db.Column('artist_id', db.Integer, db.ForeignKey('artist.id')),
+    db.Column('torrent_group_id', db.Integer, db.ForeignKey('torrent_group.id'))
+)
 
 
 class Artist(db.Model):
@@ -34,8 +28,9 @@ class Artist(db.Model):
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
 
-    torrent_groups = association_proxy("torrent_groups", "torrent_group",
-                                       creator=lambda torrent_group: ArtistAppearance(torrent_group=torrent_group))
+    torrent_groups = db.relationship('TorrentGroup', secondary=artist_appearances, cascade='all')
+
+    torrent_group_ids = association_proxy('torrent_groups', 'id')
 
     def __init__(self, what_artist=None):
         self.created = self.updated = datetime.now()
@@ -65,8 +60,9 @@ class TorrentGroup(db.Model):
     what_id = db.Column(db.Integer, index=True)
     name = db.Column(db.String(length=255))
 
-    artists = association_proxy("artists", "artist",
-                                   creator=lambda artist: ArtistAppearance(artist=artist))
+    artists = db.relationship('Artist', secondary=artist_appearances, cascade='all')
+
+    artist_ids = association_proxy('artists', 'id')
 
     wiki_body = db.Column(db.Text)
     wiki_image = db.Column(db.Text)
@@ -75,6 +71,10 @@ class TorrentGroup(db.Model):
     catalogue_number = db.Column(db.String(length=100))
     vanity_house = db.Column(db.Boolean)
     time = db.Column(db.DATETIME)
+
+    # TODO: Categories
+
+    release_type = db.Column(db.Integer)
 
     created = db.Column(db.TIMESTAMP)
     updated = db.Column(db.TIMESTAMP)
@@ -97,6 +97,7 @@ class TorrentGroup(db.Model):
         self.catalogue_number = what_torrentgroup.catalogue_number
         self.vanity_house = what_torrentgroup.vanity_house
         self.time = what_torrentgroup.time
+        self.release_type = what_torrentgroup.release_type
 
         self.updated = datetime.now()
 
