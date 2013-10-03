@@ -58,7 +58,7 @@ def add_torrent_collection():
     if scan:
         scanner_context = {'collection_id': new_collection.id, 'directory_path': path}
 
-        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
+        filescanner.set_global_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
         filescanner.scan_directory(directory_path=path,
                                    file_data_callback=None,
                                    context=scanner_context,
@@ -114,7 +114,7 @@ def modify_torrent_collection(collection_id):
         db.session.commit()
 
         scanner_context = {'collection_id': collection_id, 'directory_path': collection_db_item.path}
-        filescanner.set_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
+        filescanner.set_global_filetype_handler("*.torrent", torrentwrangler.read_torrent_file_and_populate_db)
         filescanner.scan_directory(directory_path=collection_db_item.path,
                                    file_data_callback=None,
                                    context=scanner_context,

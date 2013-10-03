@@ -2,9 +2,14 @@ from collections import deque
 import fnmatch
 import os
 from threading import Thread, Event
+import uuid
 
 # TODO: Add scan completion callbacks and track scans that haven't completed
+# WIP: migrating things into job class as much as possible.
+# Thinking of having it act as a generator for the files the scanner should scan.
 
+# Processing callbacks handle specific file types and return usable data.
+# Data callbacks do something with the data returned by the processing callback.
 
 class InvalidScanTargetException(Exception):
     pass
@@ -13,18 +18,18 @@ class InvalidScanTargetException(Exception):
 class FileScanner(object):
     def __init__(self, app):
         self.scanning_queue = deque([])
-        self.filetype_handlers = {}
+        self.global_filetype_handlers = {}
         self.scan_thread = None
         self.current_scan = None
         self.stop_event = Event()
         self.app = app
 
-    def set_filetype_handler(self, type_glob_string, handler_callback):
-        self.filetype_handlers[type_glob_string] = handler_callback
+    def set_global_filetype_handler(self, type_glob_string, handler_callback):
+        self.global_filetype_handlers[type_glob_string] = handler_callback
 
-    def remove_filetype_handler(self, type_glob_string):
-        if type_glob_string in self.filetype_handlers:
-            del self.filetype_handlers[type_glob_string]
+    def remove_global_filetype_handler(self, type_glob_string):
+        if type_glob_string in self.global_filetype_handlers:
+            del self.global_filetype_handlers[type_glob_string]
             return True
         else:
             return False
@@ -33,11 +38,12 @@ class FileScanner(object):
         if not os.path.isdir(directory_path):
             raise InvalidScanTargetException("Path '%s' is not a directory." % directory_path)
 
-        if filetype_filter != '*' and not len(fnmatch.filter(self.filetype_handlers.iterkeys(), filetype_filter)):
+        if filetype_filter != '*' and not len(fnmatch.filter(self.global_filetype_handlers.iterkeys(), filetype_filter)):
             raise InvalidScanTargetException("No filetype handler defined for current filetype_filter (%s)." %
                                              filetype_filter)
 
-        queue_item = (directory_path, file_data_callback, context, filetype_filter, recurse)
+        queue_item = ScannerJob(directory_path, file_data_callback, context, filetype_filter, recurse)
+        self.app.logger.info("New scan job id: %s" % queue_item.job_id)
         if priority:
             self.scanning_queue.appendleft(queue_item)
         else:
@@ -49,10 +55,11 @@ class FileScanner(object):
         if not os.path.isfile(file_path):
             raise InvalidScanTargetException("Path '%s' is not a file." % file_path)
 
-        if not len([fnmatch.fnmatch(file_path, pattern) for pattern in self.filetype_handlers.iterkeys()]):
+        if not len([fnmatch.fnmatch(file_path, pattern) for pattern in self.global_filetype_handlers.iterkeys()]):
             raise InvalidScanTargetException("No filetype_handler defined for specified file.")
 
-        queue_item = (file_path, file_data_callback, context, '*', False)
+        queue_item = ScannerJob(file_path, file_data_callback, context, '*', False)
+        self.app.logger.info("New scan job id: %s" % queue_item.job_id)
         if priority:
             self.scanning_queue.appendleft(queue_item)
         else:
@@ -82,7 +89,7 @@ class FileScanner(object):
                 continue
 
             processing_callbacks = [callback for type_glob_string, callback
-                                    in self.filetype_handlers.iteritems()
+                                    in self.global_filetype_handlers.iteritems()
                                     if fnmatch.fnmatch(path, type_glob_string)]
 
             for processing_callback in processing_callbacks:
@@ -120,4 +127,66 @@ class FileScanner(object):
         self.scanning_queue.clear()
         self.current_scan = None
 
+
+class ScannerJob():
+    def __init__(self, path, file_data_callback, context, filetype_filter, recurse):
+        self.job_id = uuid.uuid4()
+        self.filetype_handlers = {}
+
+        self.scan_path = path
+        self.is_dir = os.path.isdir(self.scan_path)
+
+        self.data_callback = file_data_callback
+        self.completion_callback = None
+
+        self.context = context
+        self.filetype_filter = filetype_filter
+        self.recurse = recurse
+
+    def files(self):
+        if self.is_dir:
+            if self.recurse:
+                for root_dir, dirnames, filenames in os.walk(self.scan_path):
+                    if self.filetype_filter != '*':
+                        filenames = fnmatch.filter(filenames, self.filetype_filter)
+                    for filename in filenames:
+                        yield ScannerJobFile(os.path.join(root_dir, filename), self.data_callback, self.context)
+            else:
+                file_paths = os.listdir(self.scan_path)
+                if self.filetype_filter != '*':
+                    file_paths = fnmatch.filter(file_paths, self.filetype_filter)
+                for file_path in file_paths:
+                    yield ScannerJobFile(os.path.join(self.scan_path, file_path), self.data_callback, self.context)
+        else:  # single file
+            yield ScannerJobFile(self.scan_path, self.data_callback, self.context)
+
+        #processing_callbacks = [callback for type_glob_string, callback
+        #                        in self.filetype_handlers.iteritems()
+        #                        if fnmatch.fnmatch(self.path, type_glob_string)]
+        #
+        #for processing_callback in processing_callbacks:
+        #    self.app.logger.debug("Scanning file: %s" % self.path)
+        #    processing_result = processing_callback(path, context=context)
+        #    if processing_result is not None and data_callback is not None:
+        #        if isinstance(processing_result, (list, tuple)):
+        #            data_callback(*processing_result, context=context)
+        #        else:
+        #            data_callback(processing_result, context=context)
+
+    def set_filetype_handler(self, type_glob_string, handler_callback):
+        self.filetype_handlers[type_glob_string] = handler_callback
+
+    def remove_filetype_handler(self, type_glob_string):
+        if type_glob_string in self.filetype_handlers:
+            del self.filetype_handlers[type_glob_string]
+            return True
+        else:
+            return False
+
+
+class ScannerJobFile():
+    def __init__(self, path, file_data_callback, context):
+        self.path = path
+        self.data_callback = file_data_callback
+        self.context = context
 
