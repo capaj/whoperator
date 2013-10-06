@@ -1,8 +1,8 @@
 import os
 from bencode import bencode, bdecode
 from hashlib import sha1
-from whoperator import db
-from whoperator.models.schema import Torrent, TorrentFile
+from whoperator import db, app
+from whoperator.models.schema import Torrent, TorrentFile, Artist, TorrentGroup
 from whoperator.whatmanager import what_api
 
 
@@ -52,15 +52,41 @@ def read_torrent_file_and_populate_db(path, context):
     what_torrent = what_api().get_torrent_from_info_hash(info_hash)
 
     if what_torrent is not None:
+        # Torrent file db item
         if torrent_file_db_item is None:  # torrent file is on what but not in our db
             torrent_file_db_item = TorrentFile(collection_id, what_torrent.id, size, rel_path, info_hash)
             db.session.add(torrent_file_db_item)
+
+        # Torrent db item
         torrent_db_item = Torrent.query.get(what_torrent.id)
         if torrent_db_item is None:
             torrent_db_item = Torrent(what_torrent)
             db.session.add(torrent_db_item)
         else:
             torrent_db_item.update_from_what(what_torrent)
+
+        # TorrentGroup db item
+        torrent_group_db_item = torrent_db_item.torrent_group
+        if torrent_group_db_item:
+            torrent_group_db_item.update_from_what(what_torrentgroup=what_torrent.group)
+        else:
+            torrent_group_db_item = TorrentGroup(what_torrentgroup=what_torrent.group)
+        db.session.add(torrent_group_db_item)
+
+        # Artist db item
+        what_artists = what_torrent.group.music_info['artists'] + what_torrent.group.music_info['with']
+        for what_artist in what_artists:
+            artist_db_item = Artist.query.filter(Artist.what_id == what_artist.id).first()
+            if not artist_db_item:
+                if not what_artist.fully_loaded:
+                    # TODO: deferred artist lookup
+                    app.logger.debug("Need to scan for artist: %s, %s" % (what_artist.id, what_artist.name))
+                    what_artist.update_data()
+
+                artist_db_item = Artist(what_artist=what_artist)
+                artist_db_item.torrent_groups.append(torrent_group_db_item)
+                db.session.add(artist_db_item)
+
         db.session.commit()
     else:
         if torrent_file_db_item is None:  # torrent file is not on what, but we need to add to our db anyway

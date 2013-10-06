@@ -45,7 +45,7 @@ class Artist(db.Model):
         self.name = what_artist.name
         self.image = what_artist.image
         self.body = what_artist.body
-        self.vanity_house = what_artist.vanity_house
+        self.vanity_house = bool(what_artist.vanity_house)
         self.updated = datetime.now()
 
     def as_dict(self):
@@ -95,8 +95,8 @@ class TorrentGroup(db.Model):
         self.year = what_torrentgroup.year
         self.record_label = what_torrentgroup.record_label
         self.catalogue_number = what_torrentgroup.catalogue_number
-        self.vanity_house = what_torrentgroup.vanity_house
-        self.time = what_torrentgroup.time
+        self.vanity_house = bool(what_torrentgroup.vanity_house)
+        self.time = datetime.strptime(what_torrentgroup.time, "%Y-%m-%d %H:%M:%S")
         self.release_type = what_torrentgroup.release_type
 
         self.updated = datetime.now()
@@ -158,22 +158,22 @@ class Torrent(db.Model):
         self.format = what_torrent.format
         self.encoding = what_torrent.encoding
         self.remaster_year = what_torrent.remaster_year
-        self.remastered = what_torrent.remastered
+        self.remastered = bool(what_torrent.remastered)
         self.remaster_title = what_torrent.remaster_title
         self.remaster_record_label = what_torrent.remaster_record_label
         self.remaster_catalogue_number = what_torrent.remaster_catalogue_number
-        self.scene = what_torrent.scene
-        self.has_log = what_torrent.has_log
-        self.has_cue = what_torrent.has_cue
+        self.scene = bool(what_torrent.scene)
+        self.has_log = bool(what_torrent.has_log)
+        self.has_cue = bool(what_torrent.has_cue)
         self.log_score = what_torrent.log_score
         self.file_count = what_torrent.file_count
-        self.free_torrent = what_torrent.free_torrent
+        self.free_torrent = bool(what_torrent.free_torrent)
         self.size = what_torrent.size
         self.leechers = what_torrent.leechers
         self.seeders = what_torrent.seeders
         self.snatched = what_torrent.snatched
-        self.time = what_torrent.time
-        self.has_file = what_torrent.has_file
+        self.time = datetime.strptime(what_torrent.time, "%Y-%m-%d %H:%M:%S")
+        self.has_file = bool(what_torrent.has_file)
         self.description = what_torrent.description
         self.file_path = what_torrent.file_path
         self.updated = datetime.now()
@@ -220,7 +220,7 @@ class TorrentFileCollection(db.Model):
     def __init__(self, name, path, recurse):
         self.name = name
         self.path = path
-        self.recurse = recurse
+        self.recurse = bool(recurse)
         self.created = self.updated = datetime.now()
 
     def as_dict(self):
@@ -242,7 +242,7 @@ class MediaFileCollection(db.Model):
     def __init__(self, name, path, recurse):
         self.name = name
         self.path = path
-        self.recurse = recurse
+        self.recurse = bool(recurse)
         self.created = self.updated = datetime.now()
 
     def as_dict(self):

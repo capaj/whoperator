@@ -59,7 +59,8 @@ def add_media_collection():
         scanner_context = {'collection_id': new_collection.id, 'directory_path': path}
 
         # TODO: write mp3 filescanner
-        filescanner.set_filetype_handler("*.mp3", print_function)
+        # TODO: don't forget to set filetype_filter in scan_directory()
+        filescanner.set_global_filetype_handler("*.mp3", print_function)
         filescanner.scan_directory(directory_path=path,
                                    file_data_callback=None,
                                    context=scanner_context,
@@ -117,7 +118,8 @@ def modify_media_collection(collection_id):
         scanner_context = {'collection_id': collection_id, 'directory_path': collection_db_item.path}
 
         # TODO: write mp3 filescanner
-        filescanner.set_filetype_handler("*.mp3", print_function)
+        # TODO: don't forget to set filetype_filter in scan_directory()
+        filescanner.set_global_filetype_handler("*.mp3", print_function)
         filescanner.scan_directory(directory_path=collection_db_item.path,
                                    file_data_callback=None,
                                    context=scanner_context,
