@@ -4,9 +4,7 @@ import os
 from threading import Thread, Event
 import uuid
 
-# TODO: Add scan completion callbacks and track scans that haven't completed
-# WIP: migrating things into job class as much as possible.
-# Thinking of having it act as a generator for the files the scanner should scan.
+# TODO: track scans that haven't completed
 
 # Processing callbacks handle specific file types and return usable data.
 # Data callbacks do something with the data returned by the processing callback.

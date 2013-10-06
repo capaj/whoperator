@@ -62,6 +62,7 @@ def add_torrent_collection():
         filescanner.scan_directory(directory_path=path,
                                    file_data_callback=None,
                                    context=scanner_context,
+                                   filetype_filter="*.torrent",
                                    recurse=recurse,
                                    priority=False)
 
@@ -118,6 +119,7 @@ def modify_torrent_collection(collection_id):
         filescanner.scan_directory(directory_path=collection_db_item.path,
                                    file_data_callback=None,
                                    context=scanner_context,
+                                   filetype_filter="*.torrent",
                                    recurse=collection_db_item.recurse,
                                    priority=False)
 
