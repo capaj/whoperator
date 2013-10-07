@@ -42,4 +42,4 @@ setup_db()
 
 # Import all the routes
 import views
-from api import artist, logging, media_collection, torrent_collection, torrent_file, what_direct
+from api import artist, logging, media_collection, torrent_collection, torrent_file, what_direct, filescanner
