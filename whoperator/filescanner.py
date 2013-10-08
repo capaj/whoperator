@@ -1,4 +1,5 @@
 from collections import deque
+from datetime import datetime
 import fnmatch
 import os
 from threading import Thread, Event
@@ -16,10 +17,12 @@ class InvalidScanTargetException(Exception):
 
 class FileScanner(object):
     def __init__(self, app):
-        self.scanning_queue = deque([])
+        self.job_queue = deque([])
+        self.completed_jobs = deque([], maxlen=10)
         self.global_filetype_handlers = {}
         self.scan_thread = None
         self.current_job = None
+        self.current_file = None
         self.stop_event = Event()
         self.app = app
 
@@ -49,9 +52,9 @@ class FileScanner(object):
 
         self.app.logger.info("New scan job id: %s" % job.job_id)
         if priority:
-            self.scanning_queue.appendleft(job)
+            self.job_queue.appendleft(job)
         else:
-            self.scanning_queue.append(job)
+            self.job_queue.append(job)
 
         self._start_scan_thread()
 
@@ -67,28 +70,34 @@ class FileScanner(object):
 
         self.app.logger.info("New scan job id: %s" % job.job_id)
         if priority:
-            self.scanning_queue.appendleft(job)
+            self.job_queue.appendleft(job)
         else:
-            self.scanning_queue.append(job)
+            self.job_queue.append(job)
 
         self._start_scan_thread()
 
     def _process_scan_queue(self, scanning_queue, stop_event):
         while len(scanning_queue) and not stop_event.is_set():
-            self.current_job = scanning_queue.popleft()
+            if self.current_job is None:
+                self.current_job = scanning_queue.popleft()
+            self.current_job.started_time = datetime.now()
 
             self.app.logger.debug("Starting scan job id: %s" % self.current_job.job_id)
 
             for file_to_scan in self.current_job.files():
-                if not stop_event.is_set():
-                    self.app.logger.debug("Scanning file: %s" % file_to_scan.path)
-                    file_to_scan.scan()
-                else:
+                if stop_event.is_set():
+                    self.current_file = None
                     scanning_queue.appendleft(self.current_job)
                     self.current_job = None
                     return
 
+                self.current_file = file_to_scan
+                self.app.logger.debug("Scanning file: %s" % file_to_scan.path)
+                file_to_scan.scan()
+
+            self.current_file = None
             self.current_job.complete()
+            self.completed_jobs.append(self.current_job)
 
             self.current_job = None
 
@@ -97,11 +106,11 @@ class FileScanner(object):
             self.app.logger.info("Starting file scan...")
             self.scan_thread = Thread(target=self._process_scan_queue,
                                       name="FileScanner",
-                                      args=[self.scanning_queue, self.stop_event])
+                                      args=[self.job_queue, self.stop_event])
             self.scan_thread.start()
 
     def resume_scan(self):
-        if len(self.scanning_queue):
+        if self.current_job is not None or len(self.job_queue):
             self._start_scan_thread()
 
     def stop_scan(self):
@@ -110,10 +119,33 @@ class FileScanner(object):
             self.scan_thread.join()
         self.scan_thread = None
         self.stop_event = Event()
-        return self.scanning_queue
+        return self.job_queue
+
+    def abort_current_job(self):
+        job_to_stop = self.current_job
+        self.stop_scan()
+        self.current_job = None
+        try:
+            self.job_queue.remove(job_to_stop)
+        except:
+            pass
+
+        del job_to_stop
+        self.resume_scan()
+
+    def delete_job(self, job_id):
+        if self.current_job and str(self.current_job.job_id) == job_id:
+            self.abort_current_job()
+            return True
+        else:
+            for job in self.job_queue:
+                if str(job.job_id) == job_id:
+                    self.job_queue.remove(job)
+                    return True
+        return False
 
     def clear_queue(self):
-        self.scanning_queue.clear()
+        self.job_queue.clear()
         self.current_job = None
 
 
@@ -132,6 +164,21 @@ class ScannerJob():
         self.filetype_filter = filetype_filter
         self.recurse = recurse
 
+        self.started_time = None
+        self.completed_time = None
+
+    def as_dict(self):
+        return {
+            'job_id': self.job_id,
+            'scan_path': self.scan_path,
+            'is_dir': self.is_dir,
+            'filetype_filter': self.filetype_filter,
+            'recursive': self.recurse,
+            'started_time': self.started_time,
+            'completed_time': self.completed_time
+        }
+
+    # TODO: rework so that on job creation, all files are saved as a deque...will allow preservation of state
     def files(self):
         if self.is_dir:
             if self.recurse:
@@ -153,11 +200,15 @@ class ScannerJob():
                                 if fnmatch.fnmatch(file_path, type_glob_string)]
                     yield ScannerJobFile(os.path.join(self.scan_path, file_path), processing_callbacks, self.data_callback, self.context)
         else:  # single file
-            yield ScannerJobFile(self.scan_path, self.data_callback, self.context)
+            processing_callbacks = [callback for type_glob_string, callback
+                                in self.filetype_handlers.iteritems()
+                                if fnmatch.fnmatch(self.scan_path, type_glob_string)]
+            yield ScannerJobFile(self.scan_path, processing_callbacks, self.data_callback, self.context)
 
     def complete(self):
         if callable(self.completion_callback):
             self.completion_callback(self.job_id, self.scan_path, self.context)
+        self.completed_time = datetime.now()
 
     def set_filetype_handler(self, type_glob_string, handler_callback):
         if callable(handler_callback):
@@ -191,3 +242,8 @@ class ScannerJobFile():
                     self.data_callback(*processing_result, context=self.context)
                 else:
                     self.data_callback(processing_result, context=self.context)
+
+    def as_dict(self):
+        return {
+            'path': self.path
+        }
