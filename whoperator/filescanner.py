@@ -78,7 +78,8 @@ class FileScanner(object):
 
     def _process_scan_queue(self, scanning_queue, stop_event):
         while len(scanning_queue) and not stop_event.is_set():
-            self.current_job = scanning_queue.popleft()
+            if self.current_job is None:
+                self.current_job = scanning_queue.popleft()
             self.current_job.started_time = datetime.now()
 
             self.app.logger.debug("Starting scan job id: %s" % self.current_job.job_id)
@@ -109,7 +110,7 @@ class FileScanner(object):
             self.scan_thread.start()
 
     def resume_scan(self):
-        if len(self.job_queue):
+        if self.current_job is not None or len(self.job_queue):
             self._start_scan_thread()
 
     def stop_scan(self):
@@ -119,6 +120,29 @@ class FileScanner(object):
         self.scan_thread = None
         self.stop_event = Event()
         return self.job_queue
+
+    def abort_current_job(self):
+        job_to_stop = self.current_job
+        self.stop_scan()
+        self.current_job = None
+        try:
+            self.job_queue.remove(job_to_stop)
+        except:
+            pass
+
+        del job_to_stop
+        self.resume_scan()
+
+    def delete_job(self, job_id):
+        if self.current_job and str(self.current_job.job_id) == job_id:
+            self.abort_current_job()
+            return True
+        else:
+            for job in self.job_queue:
+                if str(job.job_id) == job_id:
+                    self.job_queue.remove(job)
+                    return True
+        return False
 
     def clear_queue(self):
         self.job_queue.clear()
@@ -154,6 +178,7 @@ class ScannerJob():
             'completed_time': self.completed_time
         }
 
+    # TODO: rework so that on job creation, all files are saved as a deque...will allow preservation of state
     def files(self):
         if self.is_dir:
             if self.recurse:
